@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terraform Best Practices</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>terraform-best-practices.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>Terraform Best Practices</h1>
+        <p>Terraform succeeds when teams optimize for composability, review quality, and state safety. This guide outlines the operating model behind reliable infrastructure as code.</p>
+        <h2>Repository Layout</h2>
+        <ul>
+          <li>Keep reusable modules separate from environment composition to avoid coupling change cadence.</li>
+          <li>Model environments with clear variable inputs, provider aliases, and explicit ownership boundaries.</li>
+          <li>Use README examples and version pinning to make module adoption predictable.</li>
+        </ul>
+
+        <h2>State Management</h2>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Remote backends</strong><p>Use encryption, locking, backups, and restricted access for every state file.</p></div>
+          <div class="meta-card"><strong>Blast radius</strong><p>Split state by lifecycle boundary such as network, identity, platform, and application layers.</p></div>
+          <div class="meta-card"><strong>Recovery</strong><p>Document import, state mv, and drift remediation paths before emergencies happen.</p></div>
+        </div>
+
+        <h2>Review Workflow</h2>
+        <table>
+          <thead><tr><th>Stage</th><th>Expectation</th><th>Guardrail</th></tr></thead>
+          <tbody>
+            <tr><td>Linting</td><td>Formatting, validation, static policy scans</td><td>Block malformed plans early.</td></tr>
+            <tr><td>Planning</td><td>Readable change summaries with sensitive data masked</td><td>Review intent before applying.</td></tr>
+            <tr><td>Apply</td><td>Approved, auditable, environment-scoped execution</td><td>Limit surprise production changes.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Design Recommendations</h2>
+        <ol>
+          <li>Avoid clever modules that hide critical decisions behind excessive abstraction.</li>
+          <li>Prefer explicit outputs and typed variables for maintainability.</li>
+          <li>Tag every resource for cost, ownership, environment, and compliance tracking.</li>
+          <li>Pair Terraform with policy as code to enforce standards centrally.</li>
+        </ol>
+
+        <h2>Drift and Lifecycle</h2>
+        <p>Drift is a signal that process or platform boundaries are unclear. Combine scheduled drift detection with ownership reviews and limited manual-console permissions to keep IaC authoritative.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

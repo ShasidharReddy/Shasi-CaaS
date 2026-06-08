@@ -1,15 +1,18 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: shasi-portfolio
+  name: shasi-technologies
 spec:
   template:
     spec:
       containers:
-        - image: gcr.io/PROJECT_ID/shasi-portfolio:latest
+        - image: docker.io/shasidhar19/shasi-technologies:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: production
           resources:
             limits:
-              memory: 256Mi
+              memory: 512Mi
               cpu: '1'

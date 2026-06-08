@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloud Architecture Patterns</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>cloud-architecture-patterns.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>Cloud Architecture Patterns</h1>
+        <p>Architecture decisions should balance resilience, cost, operability, and team cognition. This guide summarizes practical patterns that scale with organizational maturity.</p>
+        <h2>Core Patterns</h2>
+        <ul>
+          <li>Use stateless service tiers behind load balancers for elasticity and simpler rollback.</li>
+          <li>Separate shared platform capabilities from product workloads using landing zones and service boundaries.</li>
+          <li>Adopt event-driven integration when teams need autonomy and asynchronous scaling.</li>
+        </ul>
+
+        <h2>Decision Matrix</h2>
+        <table>
+          <thead><tr><th>Concern</th><th>Pattern</th><th>Trade-off</th></tr></thead>
+          <tbody>
+            <tr><td>High availability</td><td>Multi-zone active-active deployment</td><td>Higher cost, lower localized failure impact.</td></tr>
+            <tr><td>Data protection</td><td>Tiered backups plus tested restore workflows</td><td>Operational complexity, strong recovery posture.</td></tr>
+            <tr><td>Enterprise security</td><td>Centralized identity with least privilege and network segmentation</td><td>Needs disciplined governance.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Reference Layers</h2>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Network</strong><p>Shared connectivity, ingress, egress control, DNS, and private service access.</p></div>
+          <div class="meta-card"><strong>Compute</strong><p>VMs, containers, and serverless aligned to workload profile and operational burden.</p></div>
+          <div class="meta-card"><strong>Data</strong><p>Transactional, analytical, and cache layers with encryption and lifecycle controls.</p></div>
+        </div>
+
+        <h2>Migration Notes</h2>
+        <p>Lift-and-shift can be a tactical step, but lasting cloud value comes from refactoring around platform services, automation, and observability. Document which workloads should modernize first based on risk, cost, and business criticality.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

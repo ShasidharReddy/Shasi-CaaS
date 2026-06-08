@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kubernetes Architecture</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>kubernetes-architecture.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>Kubernetes Architecture</h1>
+        <p>This guide frames Kubernetes as a product platform: control plane reliability, secure tenancy, workload consistency, and clear operational ownership.</p>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Platform goal</strong><p>Give delivery teams a paved road for containerized workloads without exposing every low-level concern.</p></div>
+          <div class="meta-card"><strong>Key domains</strong><p>Cluster lifecycle, networking, identity, policy, storage, and observability.</p></div>
+        </div>
+
+        <h2>Control Plane Priorities</h2>
+        <ul>
+          <li>Prefer managed control planes when the objective is application delivery over deep platform ownership.</li>
+          <li>Separate production from non-production clusters to simplify blast-radius control and change approvals.</li>
+          <li>Protect API server access with SSO-backed authentication, audit logging, and admission policies.</li>
+        </ul>
+
+        <h2>Workload Design Principles</h2>
+        <table>
+          <thead><tr><th>Pattern</th><th>Practice</th><th>Outcome</th></tr></thead>
+          <tbody>
+            <tr><td>Deployments</td><td>Probe-backed rollouts, resource requests, pod disruption budgets</td><td>Predictable scaling and safer upgrades.</td></tr>
+            <tr><td>Namespaces</td><td>Quota, RBAC, and network policy boundaries</td><td>Clear team separation with governed access.</td></tr>
+            <tr><td>Ingress</td><td>TLS automation, WAF integration, and versioned routing</td><td>Safer external exposure and rollback flexibility.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Networking Model</h2>
+        <p>Plan service-to-service communication before workload sprawl begins. Match CNI, ingress, and service mesh decisions to concrete requirements such as zero trust, mTLS, east-west visibility, or cost-sensitive traffic paths.</p>
+        <div class="callout"><strong>Recommendation:</strong><p>Track DNS, certificate management, and ingress ownership as first-class architecture decisions, not afterthoughts.</p></div>
+
+        <h2>Cluster Operations</h2>
+        <ol>
+          <li>Patch nodes with surge capacity or blue/green node pools.</li>
+          <li>Continuously validate backup and restore for etcd-aligned resources and persistent volumes.</li>
+          <li>Use policy enforcement to block privileged containers, mutable image tags, and missing resource settings.</li>
+          <li>Map alerts to runbooks so the on-call engineer knows whether to restart, reschedule, or scale.</li>
+        </ol>
+
+        <h2>Production Readiness Review</h2>
+        <p>A cluster is not production-ready because it schedules pods; it is ready when image provenance, secrets handling, resilience tests, and capacity assumptions are all proven through routine operations.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

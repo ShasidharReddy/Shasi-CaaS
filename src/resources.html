@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resources | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="resources" data-protected="true">
+    <div class="page-gradient"></div>
+    <header class="site-header frosted">
+      <div class="container nav-wrap">
+        <a class="brand" href="/dashboard">
+          <span class="brand-mark">ST</span>
+          <span>
+            <strong>Shasi Technologies</strong>
+            <small>Cloud • DevOps • Infrastructure</small>
+          </span>
+        </a>
+        <nav class="site-nav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/resources">Resources</a>
+          <a href="/">Public Site</a>
+          <button class="theme-toggle" type="button" aria-label="Toggle color theme">
+            <span class="theme-icon theme-icon-moon">◐</span>
+            <span class="theme-icon theme-icon-sun">◑</span>
+          </button>
+          <button id="logout-button" class="btn btn-secondary btn-small" type="button">Logout</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section dashboard-main">
+      <div class="container resources-layout">
+        <section class="resource-library">
+          <div class="section-heading compact reveal visible">
+            <p class="eyebrow">Protected guides</p>
+            <h1>Open PDF-style technical documents directly inside the workspace.</h1>
+          </div>
+          <div class="resource-card-grid">
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-01</strong></div>
+              <div class="card-body">
+                <h3>Linux Administration Guide</h3>
+                <p>System lifecycle tasks, storage, networking, patching, and security baselines for operations teams.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="linux-administration-guide" data-title="Linux Administration Guide">Open Guide</button>
+              </div>
+            </article>
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-02</strong></div>
+              <div class="card-body">
+                <h3>Kubernetes Architecture</h3>
+                <p>Control plane design, workload patterns, networking, and production readiness checks.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="kubernetes-architecture" data-title="Kubernetes Architecture">Open Guide</button>
+              </div>
+            </article>
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-03</strong></div>
+              <div class="card-body">
+                <h3>Terraform Best Practices</h3>
+                <p>Composable modules, policy boundaries, state hygiene, and review workflows for repeatable IaC.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="terraform-best-practices" data-title="Terraform Best Practices">Open Guide</button>
+              </div>
+            </article>
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-04</strong></div>
+              <div class="card-body">
+                <h3>CI/CD Pipeline Design</h3>
+                <p>Stage design, approvals, quality gates, artifact promotion, and rollback planning.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="ci-cd-pipeline-design" data-title="CI/CD Pipeline Design">Open Guide</button>
+              </div>
+            </article>
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-05</strong></div>
+              <div class="card-body">
+                <h3>Cloud Architecture Patterns</h3>
+                <p>Resilience, networking, identity, data layering, and migration strategies for modern platforms.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="cloud-architecture-patterns" data-title="Cloud Architecture Patterns">Open Guide</button>
+              </div>
+            </article>
+            <article class="window-card resource-card reveal visible">
+              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-06</strong></div>
+              <div class="card-body">
+                <h3>Monitoring &amp; SRE</h3>
+                <p>Telemetry layers, alert strategy, SLI/SLO planning, incident command, and operational reviews.</p>
+                <button class="btn btn-primary open-guide" type="button" data-guide="monitoring-and-sre" data-title="Monitoring &amp; SRE">Open Guide</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="viewer-shell window-card reveal visible">
+          <div class="window-chrome">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-orange"></span>
+            <span class="dot dot-green"></span>
+            <strong id="viewer-title">Document Viewer</strong>
+          </div>
+          <div class="viewer-toolbar">
+            <span>Secure in-page viewer</span>
+            <a id="viewer-link" href="/resources/guides/linux-administration-guide" target="_blank" rel="noreferrer">Open in tab</a>
+          </div>
+          <iframe id="guide-frame" title="Guide viewer" src="/resources/guides/linux-administration-guide"></iframe>
+        </section>
+      </div>
+    </main>
+
+    <script src="./js/main.js"></script>
+    <script src="./js/auth.js"></script>
+  </body>
+</html>

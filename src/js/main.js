@@ -1,44 +1,48 @@
-const terminalOutput = document.querySelector('#terminal-output');
-const terminalCursor = document.querySelector('.terminal-cursor');
+const root = document.documentElement;
+const body = document.body;
+const themeToggle = document.querySelector('.theme-toggle');
 const navToggle = document.querySelector('.nav-toggle');
 const siteNav = document.querySelector('.site-nav');
 const navLinks = document.querySelectorAll('.site-nav a');
 const revealElements = document.querySelectorAll('.reveal');
-const skillMeters = document.querySelectorAll('.skill-meter');
+const terminalOutput = document.querySelector('#terminal-output');
+const terminalCursor = document.querySelector('.terminal-cursor');
 const yearNode = document.querySelector('#year');
 
+const defaultTheme = localStorage.getItem('shasi-theme') || 'dark';
 const terminalScript = [
-  'Welcome to shasi-cloud.dev',
+  'booting shasi-technologies.platform',
   '',
-  'login: shasidhar',
-  'password: ********',
+  '[init] theme=macos-dark',
+  '[init] modules=cloud,devops,infrastructure',
+  '[auth] secure workspace ready',
   '',
-  'Last login: Sun Jun 8 09:46:46 2026',
-  '[shasidhar@cloud ~]$ whoami',
-  'Cloud & DevOps Engineer | 7+ Years | Microsoft',
-  '[shasidhar@cloud ~]$ skills --top',
-  'AWS Azure GCP Kubernetes Terraform Linux CI/CD',
-  '[shasidhar@cloud ~]$ echo "Building modern cloud platforms"'
+  '$ platform capabilities --top',
+  'cloud architecture | ci/cd automation | kubernetes | sre',
+  '$ guides status',
+  '6 document viewers available behind authenticated access',
+  '$ echo "Operate beautifully."'
 ].join('\n');
 
-function typeTerminal(text, index = 0) {
-  if (!terminalOutput) return;
+function applyTheme(theme) {
+  root.setAttribute('data-theme', theme);
+  localStorage.setItem('shasi-theme', theme);
+}
 
-  if (index < text.length) {
-    terminalOutput.textContent += text.charAt(index);
-    const delay = text.charAt(index) === '\n' ? 120 : 30;
-    window.setTimeout(() => typeTerminal(text, index + 1), delay);
-  } else if (terminalCursor) {
-    terminalCursor.style.opacity = '1';
-  }
+applyTheme(defaultTheme);
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const nextTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+  });
 }
 
 function setMobileMenu(open) {
   if (!navToggle || !siteNav) return;
-
   navToggle.setAttribute('aria-expanded', String(open));
   siteNav.classList.toggle('is-open', open);
-  document.body.classList.toggle('nav-open', open);
+  body.classList.toggle('nav-open', open);
 }
 
 if (navToggle && siteNav) {
@@ -46,46 +50,44 @@ if (navToggle && siteNav) {
     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
     setMobileMenu(!expanded);
   });
-
   navLinks.forEach((link) => link.addEventListener('click', () => setMobileMenu(false)));
 }
 
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('visible');
-      revealObserver.unobserve(entry.target);
-    });
-  },
-  { threshold: 0.18 }
-);
+if (revealElements.length) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.15 }
+  );
 
-revealElements.forEach((element) => revealObserver.observe(element));
+  revealElements.forEach((element) => {
+    if (element.classList.contains('visible')) return;
+    revealObserver.observe(element);
+  });
+}
 
-const skillObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const meter = entry.target;
-      const bar = meter.querySelector('i');
+function typeTerminal(text, index = 0) {
+  if (!terminalOutput) return;
+  if (index < text.length) {
+    terminalOutput.textContent += text.charAt(index);
+    const delay = text.charAt(index) === '\n' ? 120 : 22;
+    window.setTimeout(() => typeTerminal(text, index + 1), delay);
+  } else if (terminalCursor) {
+    terminalCursor.style.opacity = '1';
+  }
+}
 
-      if (bar) {
-        bar.style.width = `${meter.dataset.level || 0}%`;
-      }
-
-      skillObserver.unobserve(meter);
-    });
-  },
-  { threshold: 0.4 }
-);
-
-skillMeters.forEach((meter) => skillObserver.observe(meter));
+window.addEventListener('load', () => {
+  if (terminalOutput) {
+    window.setTimeout(() => typeTerminal(terminalScript), 250);
+  }
+});
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
 }
-
-window.addEventListener('load', () => {
-  window.setTimeout(() => typeTerminal(terminalScript), 350);
-});

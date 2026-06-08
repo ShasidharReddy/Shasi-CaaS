@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linux Administration Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>linux-administration-guide.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>Linux Administration Guide</h1>
+        <p>Use this document as a day-one through day-two operations reference for provisioning, hardening, patching, and troubleshooting Linux systems that support production application platforms.</p>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Audience</strong><p>Platform engineers, SREs, and cloud administrators supporting Linux workloads.</p></div>
+          <div class="meta-card"><strong>Focus</strong><p>Secure defaults, lifecycle automation, and operational discipline.</p></div>
+          <div class="meta-card"><strong>Core tooling</strong><p>systemd, journald, ssh, sudo, package managers, and shell automation.</p></div>
+        </div>
+
+        <h2>Operational Baseline</h2>
+        <ul>
+          <li>Standardize host naming, timezone, package mirrors, and log forwarding from the first bootstrap action.</li>
+          <li>Use configuration management to enforce users, SSH policy, packages, services, and audit configuration.</li>
+          <li>Keep immutable infrastructure principles for stateless services and documented break-glass steps for mutable hosts.</li>
+        </ul>
+
+        <h2>Provisioning Checklist</h2>
+        <div class="checklist-grid">
+          <div class="callout"><strong>Access</strong><p>Disable password login, use short-lived keys, and limit sudo through role-based groups.</p></div>
+          <div class="callout"><strong>Packages</strong><p>Patch immediately, remove unused services, and pin critical repositories for predictable updates.</p></div>
+          <div class="callout"><strong>Storage</strong><p>Align filesystem layout with application write patterns and reserve space for logs and temp data.</p></div>
+          <div class="callout"><strong>Monitoring</strong><p>Install node exporters, forward logs, and validate alert coverage before handoff.</p></div>
+        </div>
+
+        <h2>Service Management</h2>
+        <p>Every production service should ship with a tested systemd unit, clear restart policy, and structured log output. Use service dependencies to protect startup order and isolate secrets through environment files or external secret stores.</p>
+        <table>
+          <thead><tr><th>Area</th><th>What to enforce</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>systemd</td><td>Restart=on-failure, health probes, resource limits</td><td>Reduces manual intervention and runaway processes.</td></tr>
+            <tr><td>journald</td><td>Persistent storage with retention controls</td><td>Preserves evidence for incidents and audits.</td></tr>
+            <tr><td>cron / timers</td><td>Idempotent jobs with alerting on failures</td><td>Prevents silent backup or cleanup drift.</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Security Hardening</h2>
+        <ol>
+          <li>Enable host firewalls with explicit allow rules per environment.</li>
+          <li>Collect audit events for privilege escalation, SSH changes, and package mutations.</li>
+          <li>Rotate secrets, validate TLS trust stores, and document certificate renewal paths.</li>
+          <li>Apply CIS-inspired controls pragmatically to avoid breaking required service behavior.</li>
+        </ol>
+
+        <h2>Incident Response Notes</h2>
+        <p>During incidents, gather process state, open sockets, recent package changes, disk pressure, and recent auth events before rebooting a node. Reboots can erase the highest-value clues unless logs and metrics are already centralized.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

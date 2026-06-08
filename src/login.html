@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="login" class="auth-shell-body">
+    <div class="page-gradient"></div>
+    <main class="auth-shell">
+      <section class="window-card auth-card reveal visible">
+        <div class="window-chrome">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-orange"></span>
+          <span class="dot dot-green"></span>
+          <strong>secure-sign-in</strong>
+        </div>
+        <div class="auth-card-body">
+          <a class="brand auth-brand" href="/">
+            <span class="brand-mark">ST</span>
+            <span>
+              <strong>Shasi Technologies</strong>
+              <small>Cloud • DevOps • Infrastructure</small>
+            </span>
+          </a>
+          <div class="section-heading compact">
+            <p class="eyebrow">Welcome back</p>
+            <h1>Sign in to access your protected resource library.</h1>
+          </div>
+          <form id="login-form" class="auth-form">
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" placeholder="team@company.com" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input type="password" name="password" placeholder="Enter your password" required minlength="8" />
+            </label>
+            <p id="form-message" class="form-message" role="alert"></p>
+            <button class="btn btn-primary btn-block" type="submit">Sign In</button>
+          </form>
+          <p class="auth-meta">Don’t have an account? <a href="/register">Register</a></p>
+        </div>
+      </section>
+    </main>
+    <script src="./js/main.js"></script>
+    <script src="./js/auth.js"></script>
+  </body>
+</html>
