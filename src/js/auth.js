@@ -124,7 +124,10 @@ if (guideButtons.length && guideFrame) {
   };
 
   guideButtons.forEach((button) => {
-    button.addEventListener('click', () => openGuide(button.dataset.guide, button.dataset.title));
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      openGuide(button.dataset.guide, button.dataset.title);
+    });
   });
 }
 

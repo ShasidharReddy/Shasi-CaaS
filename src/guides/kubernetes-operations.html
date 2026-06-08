@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kubernetes Operations &amp; Administration | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>kubernetes-operations.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>☸️ Kubernetes Operations &amp; Administration</h1>
+        <p>Kubernetes operations focus on keeping the control plane healthy, workloads secure, and cluster capacity aligned with demand. Administrators need a practical model for workloads, services, access control, release tooling, and incident response at the same time.</p>
+        <div class="section-note"><strong>Why it matters:</strong> Operational excellence in Kubernetes comes from understanding how resources interact, not just from memorizing YAML fields.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Control plane</strong>
+            <p>API server, scheduler, controller manager, and etcd coordinate desired state and persist cluster data.</p>
+          </div>
+          <div class="callout">
+            <strong>Worker nodes</strong>
+            <p>Kubelet, container runtime, and kube proxy run scheduled workloads and enforce networking on each node.</p>
+          </div>
+          <div class="callout">
+            <strong>Workload resources</strong>
+            <p>Pods, Deployments, StatefulSets, DaemonSets, Jobs, and CronJobs each fit a specific execution pattern.</p>
+          </div>
+          <div class="callout">
+            <strong>Platform controls</strong>
+            <p>RBAC, quotas, limits, ConfigMaps, Secrets, and Helm shape safe multi team operations.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>A healthy cluster depends on the control plane reconciling desired state into running workloads while services, ingress, and policy objects shape traffic and access around those workloads.</p>
+        <pre class="mermaid">graph TD
+  Users[Operators] --&gt; APIServer[API Server]
+  APIServer --&gt; Scheduler[Scheduler]
+  APIServer --&gt; Controller[Controller Manager]
+  APIServer --&gt; Etcd[etcd]
+  Scheduler --&gt; Nodes[Worker Nodes]
+  Nodes --&gt; Pods[Pods]
+  Pods --&gt; Services[Services]
+  Services --&gt; Ingress[Ingress]
+  APIServer --&gt; RBAC[RBAC]
+  APIServer --&gt; Config[ConfigMaps and Secrets]
+  APIServer --&gt; Quotas[Quotas and Limits]
+  Helm[Helm] --&gt; APIServer</pre>
+        <ul>
+          <li>Deployments manage stateless rolling updates, StatefulSets preserve identity and storage order, and DaemonSets place one pod per selected node.</li>
+          <li>Jobs and CronJobs are ideal for finite work such as migrations, reports, or scheduled maintenance tasks.</li>
+          <li>Services expose pods through stable virtual IPs, while Ingress adds HTTP routing and TLS at the edge.</li>
+          <li>ConfigMaps and Secrets externalize configuration so images remain environment neutral and easier to promote.</li>
+          <li>RBAC, ResourceQuotas, and LimitRanges keep namespaces safe when multiple teams share the same cluster.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RBAC</td>
+              <td>Roles, ClusterRoles, and bindings grant least privilege access to users, groups, and service accounts.</td>
+              <td>Review verbs and scope carefully before using wildcards.</td>
+            </tr>
+            <tr>
+              <td>Resource policies</td>
+              <td>Quotas and limits prevent one namespace or pod from exhausting shared capacity.</td>
+              <td>Set realistic requests so scheduling and autoscaling remain meaningful.</td>
+            </tr>
+            <tr>
+              <td>Helm</td>
+              <td>Packages Kubernetes manifests into versioned, parameterized charts.</td>
+              <td>Use values files per environment and track releases declaratively.</td>
+            </tr>
+            <tr>
+              <td>Service exposure</td>
+              <td>ClusterIP, NodePort, LoadBalancer, and Ingress present workloads at different boundaries.</td>
+              <td>Choose the narrowest exposure needed for the consumer.</td>
+            </tr>
+            <tr>
+              <td>Pod lifecycle</td>
+              <td>Pending, Running, Succeeded, Failed, and restart states reveal where scheduling or execution is blocked.</td>
+              <td>Describe events first, then inspect logs and dependent resources.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>kubectl essentials reference</h3>
+        <p>These commands cover discovery, rollout management, debugging, RBAC inspection, configuration, and cluster hygiene.</p>
+        <pre><code>kubectl cluster-info
+kubectl version --short
+kubectl get nodes -o wide
+kubectl top nodes
+kubectl get ns
+kubectl create ns platform
+kubectl config get-contexts
+kubectl config use-context prod-cluster
+kubectl get pods -A
+kubectl get pod api-7c8d9 -n prod -o yaml
+kubectl describe pod api-7c8d9 -n prod
+kubectl logs api-7c8d9 -n prod
+kubectl logs api-7c8d9 -n prod --previous
+kubectl logs deploy/api -n prod -f
+kubectl exec -it deploy/api -n prod -- sh
+kubectl cp prod/api-7c8d9:/tmp/report.txt ./report.txt
+kubectl get deploy -A
+kubectl rollout status deploy/api -n prod
+kubectl rollout history deploy/api -n prod
+kubectl rollout undo deploy/api -n prod
+kubectl scale deploy/api -n prod --replicas=5
+kubectl set image deploy/api api=ghcr.io/example/api:1.4.2 -n prod
+kubectl expose deploy/api --port=80 --target-port=8080 -n prod
+kubectl get svc,ingress -A
+kubectl get statefulset -A
+kubectl get daemonset -A
+kubectl get job,cronjob -A
+kubectl get events -A --sort-by=.lastTimestamp
+kubectl get configmap -n prod
+kubectl get secret -n prod
+kubectl auth can-i get pods --as=system:serviceaccount:prod:api
+kubectl get role,rolebinding -n prod
+kubectl get clusterrole,clusterrolebinding
+kubectl get resourcequota,limitrange -n prod
+kubectl cordon node-01
+kubectl drain node-01 --ignore-daemonsets --delete-emptydir-data
+kubectl uncordon node-01
+kubectl taint nodes node-02 workload=batch:NoSchedule
+kubectl label node node-03 topology=infra
+kubectl port-forward svc/grafana 3000:80 -n observability
+kubectl api-resources
+kubectl diff -f manifests/
+kubectl apply -f manifests/
+kubectl delete -f manifests/</code></pre>
+        <h3>Workloads, services, and configuration</h3>
+        <p>Operational manifests should include explicit labels, requests, health checks, and externalized configuration.</p>
+        <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      serviceAccountName: api
+      containers:
+        - name: api
+          image: ghcr.io/example/api:1.4.2
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: api-config
+            - secretRef:
+                name: api-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi</code></pre>
+        <h3>RBAC, quotas, and limits</h3>
+        <p>Guard shared clusters by granting only required verbs and setting namespace level resource boundaries.</p>
+        <pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-reader
+  namespace: prod
+rules:
+  - apiGroups: [&quot;&quot;]
+    resources: [&quot;pods&quot;, &quot;services&quot;, &quot;configmaps&quot;]
+    verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: prod-quota
+  namespace: prod
+spec:
+  hard:
+    requests.cpu: &quot;20&quot;
+    requests.memory: 40Gi
+    limits.cpu: &quot;40&quot;
+    limits.memory: 80Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limits
+  namespace: prod
+spec:
+  limits:
+    - default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      type: Container</code></pre>
+        <h3>Helm release management</h3>
+        <p>Use Helm to package applications consistently while keeping release history and environment overrides visible.</p>
+        <pre><code>helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm search repo ingress-nginx
+helm upgrade --install ingress ingress-nginx/ingress-nginx -n ingress --create-namespace
+helm list -A
+helm status ingress -n ingress
+helm get values ingress -n ingress
+helm rollback ingress 1 -n ingress
+helm uninstall ingress -n ingress</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Use namespaces, labels, and naming conventions consistently so teams can discover, filter, and automate around resources quickly.</li>
+          <li>Set readiness and liveness probes, resource requests, and limits on every production workload to make scheduling and failure behavior explicit.</li>
+          <li>Treat Secrets, RBAC, quotas, and network policy as baseline controls rather than optional hardening tasks.</li>
+          <li>Package repeatable workloads with Helm or another release workflow and keep all values files in version control.</li>
+          <li>Monitor etcd, API server latency, scheduler health, node pressure, and workload restart patterns as cluster level indicators.</li>
+          <li>Document standard responses for CrashLoopBackOff, ImagePullBackOff, Pending pods, and OOMKilled so on call engineers can move quickly.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CrashLoopBackOff</td>
+              <td>The container exits repeatedly because startup logic, configuration, or dependency availability is broken.</td>
+              <td>Review describe events, previous logs, recent config changes, and probes that may be forcing early restarts.</td>
+            </tr>
+            <tr>
+              <td>ImagePullBackOff</td>
+              <td>Image name, registry auth, image policy, or network egress is incorrect.</td>
+              <td>Confirm the image tag exists, test imagePullSecrets, and inspect node level registry connectivity.</td>
+            </tr>
+            <tr>
+              <td>Pending pods</td>
+              <td>No node matches resource requests, taints, affinities, or volume requirements.</td>
+              <td>Describe the pod, inspect scheduler events, and compare requests against allocatable node capacity.</td>
+            </tr>
+            <tr>
+              <td>OOMKilled</td>
+              <td>Memory limits are too low or the workload leaks memory under load.</td>
+              <td>Check container memory usage, increase limits carefully, and profile the application before simply raising every boundary.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://kubernetes.io/docs/home/" target="_blank" rel="noreferrer">Kubernetes documentation</a></li>
+          <li><a href="https://kubernetes.io/docs/reference/kubectl/" target="_blank" rel="noreferrer">kubectl reference</a></li>
+          <li><a href="https://kubernetes.io/docs/concepts/workloads/" target="_blank" rel="noreferrer">Workloads overview</a></li>
+          <li><a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/" target="_blank" rel="noreferrer">RBAC authorization</a></li>
+          <li><a href="https://helm.sh/docs/" target="_blank" rel="noreferrer">Helm docs</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

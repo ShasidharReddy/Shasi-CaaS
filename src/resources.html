@@ -11,6 +11,37 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      .resource-category + .resource-category {
+        margin-top: 2.5rem;
+      }
+
+      .resource-category .section-heading {
+        margin-bottom: 1.15rem;
+      }
+
+      .resource-card .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        align-items: flex-start;
+      }
+
+      .resource-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        font-size: 1.45rem;
+        background: rgba(0, 122, 255, 0.12);
+        border: 1px solid var(--line);
+      }
+
+      .resource-card .btn {
+        margin-top: auto;
+      }
+    </style>
   </head>
   <body data-page="resources" data-protected="true">
     <div class="page-gradient"></div>
@@ -41,58 +72,166 @@
         <section class="resource-library">
           <div class="section-heading compact reveal visible">
             <p class="eyebrow">Protected guides</p>
-            <h1>Open PDF-style technical documents directly inside the workspace.</h1>
+            <h1>Browse fourteen PDF style technical guides across monitoring, automation, containers, and platform operations.</h1>
           </div>
-          <div class="resource-card-grid">
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-01</strong></div>
-              <div class="card-body">
-                <h3>Linux Administration Guide</h3>
-                <p>System lifecycle tasks, storage, networking, patching, and security baselines for operations teams.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="linux-administration-guide" data-title="Linux Administration Guide">Open Guide</button>
+            <section class="resource-category reveal visible">
+              <div class="section-heading compact">
+                <p class="eyebrow">Guide collection</p>
+                <h2>Monitoring &amp; Observability</h2>
               </div>
-            </article>
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-02</strong></div>
-              <div class="card-body">
-                <h3>Kubernetes Architecture</h3>
-                <p>Control plane design, workload patterns, networking, and production readiness checks.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="kubernetes-architecture" data-title="Kubernetes Architecture">Open Guide</button>
+              <div class="resource-card-grid">
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-01</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">📈</div>
+                  <h3>Prometheus Monitoring</h3>
+                  <p>Metrics collection, exporters, alert rules, federation, remote write, and PromQL operating patterns.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/prometheus-monitoring" data-guide="prometheus-monitoring" data-title="Prometheus Monitoring">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-02</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">📊</div>
+                  <h3>Grafana Visualization &amp; Dashboards</h3>
+                  <p>Provisioned dashboards, panel design, variables, unified alerting, and observability storytelling.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/grafana-dashboards" data-guide="grafana-dashboards" data-title="Grafana Visualization &amp; Dashboards">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-03</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🪵</div>
+                  <h3>ELK Stack</h3>
+                  <p>Beats, Logstash, Elasticsearch, Kibana, ILM, and logging pipeline performance tuning.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/elk-stack" data-guide="elk-stack" data-title="ELK Stack">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-04</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🚨</div>
+                  <h3>Monitoring and SRE</h3>
+                  <p>Telemetry layers, SLI and SLO design, alert strategy, incident operations, and reviews.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/monitoring-and-sre" data-guide="monitoring-and-sre" data-title="Monitoring and SRE">Open Guide</a>
+                </div>
+              </article>
               </div>
-            </article>
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-03</strong></div>
-              <div class="card-body">
-                <h3>Terraform Best Practices</h3>
-                <p>Composable modules, policy boundaries, state hygiene, and review workflows for repeatable IaC.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="terraform-best-practices" data-title="Terraform Best Practices">Open Guide</button>
+            </section>
+            <section class="resource-category reveal visible">
+              <div class="section-heading compact">
+                <p class="eyebrow">Guide collection</p>
+                <h2>Containers &amp; Orchestration</h2>
               </div>
-            </article>
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-04</strong></div>
-              <div class="card-body">
-                <h3>CI/CD Pipeline Design</h3>
-                <p>Stage design, approvals, quality gates, artifact promotion, and rollback planning.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="ci-cd-pipeline-design" data-title="CI/CD Pipeline Design">Open Guide</button>
+              <div class="resource-card-grid">
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-05</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🐳</div>
+                  <h3>Docker &amp; Container Platform</h3>
+                  <p>Images, registries, Compose, networking, storage, hardening, and runtime troubleshooting.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/docker-containers" data-guide="docker-containers" data-title="Docker &amp; Container Platform">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-06</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">☸️</div>
+                  <h3>Kubernetes Architecture</h3>
+                  <p>Control plane design, worker components, networking, and production cluster foundations.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/kubernetes-architecture" data-guide="kubernetes-architecture" data-title="Kubernetes Architecture">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-07</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🧭</div>
+                  <h3>Kubernetes Operations &amp; Administration</h3>
+                  <p>Daily kubectl operations, RBAC, quotas, Helm workflows, and incident response guidance.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/kubernetes-operations" data-guide="kubernetes-operations" data-title="Kubernetes Operations &amp; Administration">Open Guide</a>
+                </div>
+              </article>
               </div>
-            </article>
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-05</strong></div>
-              <div class="card-body">
-                <h3>Cloud Architecture Patterns</h3>
-                <p>Resilience, networking, identity, data layering, and migration strategies for modern platforms.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="cloud-architecture-patterns" data-title="Cloud Architecture Patterns">Open Guide</button>
+            </section>
+            <section class="resource-category reveal visible">
+              <div class="section-heading compact">
+                <p class="eyebrow">Guide collection</p>
+                <h2>Automation &amp; IaC</h2>
               </div>
-            </article>
-            <article class="window-card resource-card reveal visible">
-              <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-06</strong></div>
-              <div class="card-body">
-                <h3>Monitoring &amp; SRE</h3>
-                <p>Telemetry layers, alert strategy, SLI/SLO planning, incident command, and operational reviews.</p>
-                <button class="btn btn-primary open-guide" type="button" data-guide="monitoring-and-sre" data-title="Monitoring &amp; SRE">Open Guide</button>
+              <div class="resource-card-grid">
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-08</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🛠️</div>
+                  <h3>Ansible Automation</h3>
+                  <p>Inventories, playbooks, roles, Vault, AWX, error handling, and large fleet execution practices.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/ansible-automation" data-guide="ansible-automation" data-title="Ansible Automation">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-09</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🏗️</div>
+                  <h3>Terraform Best Practices</h3>
+                  <p>Composable modules, state hygiene, policy guardrails, and repeatable infrastructure delivery.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/terraform-best-practices" data-guide="terraform-best-practices" data-title="Terraform Best Practices">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-10</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🔁</div>
+                  <h3>CI/CD Pipeline Design</h3>
+                  <p>Pipeline stages, approval design, promotion flows, rollback planning, and release governance.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/ci-cd-pipeline-design" data-guide="ci-cd-pipeline-design" data-title="CI/CD Pipeline Design">Open Guide</a>
+                </div>
+              </article>
               </div>
-            </article>
-          </div>
+            </section>
+            <section class="resource-category reveal visible">
+              <div class="section-heading compact">
+                <p class="eyebrow">Guide collection</p>
+                <h2>Infrastructure</h2>
+              </div>
+              <div class="resource-card-grid">
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-11</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🖥️</div>
+                  <h3>Linux Administration Guide</h3>
+                  <p>User management, packages, networking, storage, patching, and host level operations.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/linux-administration-guide" data-guide="linux-administration-guide" data-title="Linux Administration Guide">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-12</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">⚖️</div>
+                  <h3>NGINX &amp; HAProxy Load Balancing</h3>
+                  <p>Reverse proxying, edge security, health checks, rate limits, TLS, and balancing tradeoffs.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/nginx-haproxy" data-guide="nginx-haproxy" data-title="NGINX &amp; HAProxy Load Balancing">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-13</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">☁️</div>
+                  <h3>Cloud Architecture Patterns</h3>
+                  <p>Network, identity, resilience, data, and migration strategies for cloud platforms.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/cloud-architecture-patterns" data-guide="cloud-architecture-patterns" data-title="Cloud Architecture Patterns">Open Guide</a>
+                </div>
+              </article>
+              <article class="window-card resource-card reveal visible">
+                <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>guide-14</strong></div>
+                <div class="card-body">
+                  <div class="resource-icon">🌿</div>
+                  <h3>Git &amp; Version Control</h3>
+                  <p>Git internals, branching strategies, hooks, pull request workflows, and Actions integration.</p>
+                  <a class="btn btn-primary open-guide" href="/resources/guides/git-version-control" data-guide="git-version-control" data-title="Git &amp; Version Control">Open Guide</a>
+                </div>
+              </article>
+              </div>
+            </section>
         </section>
 
         <section class="viewer-shell window-card reveal visible">
@@ -100,13 +239,13 @@
             <span class="dot dot-red"></span>
             <span class="dot dot-orange"></span>
             <span class="dot dot-green"></span>
-            <strong id="viewer-title">Document Viewer</strong>
+            <strong id="viewer-title">Prometheus Monitoring</strong>
           </div>
           <div class="viewer-toolbar">
-            <span>Secure in-page viewer</span>
-            <a id="viewer-link" href="/resources/guides/linux-administration-guide" target="_blank" rel="noreferrer">Open in tab</a>
+            <span>Secure in page viewer</span>
+            <a id="viewer-link" href="/resources/guides/prometheus-monitoring" target="_blank" rel="noreferrer">Open in tab</a>
           </div>
-          <iframe id="guide-frame" title="Guide viewer" src="/resources/guides/linux-administration-guide"></iframe>
+          <iframe id="guide-frame" title="Guide viewer" src="/resources/guides/prometheus-monitoring"></iframe>
         </section>
       </div>
     </main>

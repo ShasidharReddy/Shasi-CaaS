@@ -52,6 +52,12 @@ Shasi-CaaS/
 └── README.md
 ```
 
+## 📖 Deployment Guide
+
+For **detailed step-by-step instructions** covering local dev, Docker, Docker Hub, Cloud Run, CI/CD setup, custom domains, and troubleshooting:
+
+👉 **[docs/DEPLOYMENT-GUIDE.md](docs/DEPLOYMENT-GUIDE.md)**
+
 ## Local Development
 ```bash
 cd server
