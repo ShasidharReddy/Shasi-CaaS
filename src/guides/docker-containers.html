@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docker &amp; Container Platform | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>docker-containers.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>🐳 Docker &amp; Container Platform</h1>
+        <p>Docker packages applications and dependencies into portable images that run consistently across laptops, CI pipelines, and production hosts. Modern container platforms build on Docker Engine, containerd, OCI runtimes, registries, and layered images to standardize delivery and isolation.</p>
+        <div class="section-note"><strong>Why it matters:</strong> Fast builds, secure images, and clean runtime boundaries matter more than memorizing individual commands.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Docker Engine</strong>
+            <p>Exposes the API, manages images, networking, volumes, and delegates low level runtime work to containerd.</p>
+          </div>
+          <div class="callout">
+            <strong>containerd and runc</strong>
+            <p>containerd handles lifecycle orchestration while runc launches containers according to the OCI runtime specification.</p>
+          </div>
+          <div class="callout">
+            <strong>Images and registries</strong>
+            <p>Images are layered immutable artifacts that can be pushed to Docker Hub or private registries for controlled distribution.</p>
+          </div>
+          <div class="callout">
+            <strong>Compose</strong>
+            <p>Docker Compose defines multi container applications, shared networks, environment variables, and service dependencies in YAML.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>A typical Docker workflow moves from Dockerfile to image build, then to a registry, and finally to one or more runtime hosts that create containers with isolated filesystems, networking, and storage.</p>
+        <pre class="mermaid">graph TD
+  Source[Source Code] --&gt; Dockerfile[Dockerfile]
+  Dockerfile --&gt; Build[Docker Build]
+  Build --&gt; Image[OCI Image]
+  Image --&gt; Registry[Registry]
+  Registry --&gt; Engine[Docker Engine]
+  Engine --&gt; Containerd[containerd]
+  Containerd --&gt; Runc[runc]
+  Engine --&gt; Networks[Networks]
+  Engine --&gt; Volumes[Volumes]
+  Engine --&gt; Containers[Containers]</pre>
+        <ul>
+          <li>Multi stage builds reduce image size by separating build time toolchains from slim runtime images.</li>
+          <li>.dockerignore keeps build contexts small so caches stay useful and accidental secrets are not copied into image layers.</li>
+          <li>Compose makes local development and small stack deployments easier by declaring services, networks, environment files, and persistent volumes together.</li>
+          <li>Network modes such as bridge, host, overlay, and macvlan each trade isolation, performance, and operational complexity differently.</li>
+          <li>Security hardening should cover rootless mode, user namespaces, seccomp profiles, AppArmor or SELinux, and minimal base images.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Layer caching</td>
+              <td>Reuses previous build steps when files and instructions have not changed.</td>
+              <td>Place stable dependency steps before frequently changing application code.</td>
+            </tr>
+            <tr>
+              <td>Compose services</td>
+              <td>Describe related containers, ports, networks, and volume mounts in one file.</td>
+              <td>Use profiles and override files to separate local and production concerns.</td>
+            </tr>
+            <tr>
+              <td>Bind mounts and volumes</td>
+              <td>Bind mounts expose host paths while volumes are managed by Docker.</td>
+              <td>Prefer volumes for application data and bind mounts for source code during development.</td>
+            </tr>
+            <tr>
+              <td>Rootless mode</td>
+              <td>Runs the daemon and containers without root privileges on the host.</td>
+              <td>Useful for reducing host risk, though some networking features may differ.</td>
+            </tr>
+            <tr>
+              <td>Registries</td>
+              <td>Store signed or scanned images for promotion across environments.</td>
+              <td>Use private registries, immutable tags, and retention policies for production delivery.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Dockerfile best practices</h3>
+        <p>Pin base images, separate dependency installation, and keep runtime layers as small and explicit as possible.</p>
+        <pre><code># syntax=docker/dockerfile:1
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+FROM nginx:1.27-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+HEALTHCHECK CMD wget -qO- http://127.0.0.1/ || exit 1
+# .dockerignore
+node_modules
+.git
+.env
+coverage
+Dockerfile*</code></pre>
+        <h3>Compose for multi container apps</h3>
+        <p>Compose files describe networks, dependencies, and persistent state for local stacks and small service bundles.</p>
+        <pre><code>services:
+  web:
+    build: .
+    ports:
+      - &quot;8080:80&quot;
+    depends_on:
+      - api
+    networks: [frontend]
+  api:
+    image: ghcr.io/example/api:1.4.2
+    environment:
+      DATABASE_URL: postgres://app:secret@db/app
+    networks: [frontend, backend]
+  db:
+    image: postgres:16
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks: [backend]
+networks:
+  frontend: {}
+  backend: {}
+volumes:
+  dbdata: {}</code></pre>
+        <h3>Networking, volumes, and registry operations</h3>
+        <p>Inspect the runtime surface area regularly so container networking and storage issues can be isolated quickly.</p>
+        <pre><code>docker network create app-net
+docker network inspect bridge
+docker run --rm --network host nicolaka/netshoot ip addr
+docker volume create pgdata
+docker run -v pgdata:/var/lib/postgresql/data postgres:16
+docker login registry.example.com
+docker tag app:latest registry.example.com/platform/app:1.0.0
+docker push registry.example.com/platform/app:1.0.0</code></pre>
+        <h3>Security and troubleshooting commands</h3>
+        <p>Container isolation should be verified explicitly instead of assumed from defaults.</p>
+        <pre><code>dockerd-rootless-setuptool.sh install
+docker run --user 10001:10001 --read-only --cap-drop ALL nginx:1.27-alpine
+docker build --progress=plain .
+docker logs --tail 200 api
+docker inspect api
+docker system df
+docker exec -it api sh</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Use slim and trusted base images, pin versions, and scan images before promotion to production registries.</li>
+          <li>Separate build and runtime stages, and order Dockerfile instructions to maximize cache hits for dependency installation.</li>
+          <li>Store secrets outside images by using runtime environment injection, secret managers, or orchestrator secret stores.</li>
+          <li>Prefer named volumes for persistent application data and keep bind mounts limited to development or controlled debugging scenarios.</li>
+          <li>Harden containers with non root users, rootless engines where appropriate, seccomp, AppArmor or SELinux, and reduced Linux capabilities.</li>
+          <li>Monitor image pull errors, log growth, disk consumption, and orphaned layers so hosts do not degrade unexpectedly.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Build failures</td>
+              <td>The build context is missing files, dependency steps changed, or the base image is unavailable.</td>
+              <td>Run docker build with plain progress, confirm COPY paths, and test registry reachability for the referenced base image.</td>
+            </tr>
+            <tr>
+              <td>Networking issues between containers</td>
+              <td>Containers are on different networks, ports are not published, or host firewalls block traffic.</td>
+              <td>Inspect Compose networks, use docker exec with curl or netcat, and verify service DNS names resolve inside the network.</td>
+            </tr>
+            <tr>
+              <td>Storage growth on hosts</td>
+              <td>Dangling images, stopped containers, verbose logs, or oversized writable layers are accumulating.</td>
+              <td>Review docker system df, set log rotation, prune unused artifacts carefully, and move state into managed volumes.</td>
+            </tr>
+            <tr>
+              <td>Application logs missing or truncated</td>
+              <td>The process writes to files instead of stdout or the logging driver configuration is insufficient.</td>
+              <td>Standardize structured stdout logging, inspect daemon log options, and centralize logs into Loki, ELK, or another backend.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://docs.docker.com/" target="_blank" rel="noreferrer">Docker documentation</a></li>
+          <li><a href="https://docs.docker.com/reference/dockerfile/" target="_blank" rel="noreferrer">Dockerfile reference</a></li>
+          <li><a href="https://docs.docker.com/compose/" target="_blank" rel="noreferrer">Docker Compose reference</a></li>
+          <li><a href="https://docs.docker.com/engine/security/" target="_blank" rel="noreferrer">Docker Engine security</a></li>
+          <li><a href="https://docs.docker.com/docker-hub/" target="_blank" rel="noreferrer">Docker Hub</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

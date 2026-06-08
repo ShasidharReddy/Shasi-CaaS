@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ELK Stack | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>elk-stack.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>🪵 ELK Stack</h1>
+        <p>The ELK Stack centralizes logs and search workflows by moving data from Beats through Logstash into Elasticsearch and presenting it in Kibana. It is powerful for infrastructure operations, security analysis, troubleshooting, and business event exploration when pipelines and index design are disciplined.</p>
+        <div class="section-note"><strong>Why it matters:</strong> Index strategy, field mappings, and lifecycle policies influence ELK performance more than dashboard polish.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Beats</strong>
+            <p>Filebeat and other lightweight shippers collect logs and metrics close to the source and forward structured events.</p>
+          </div>
+          <div class="callout">
+            <strong>Logstash</strong>
+            <p>Provides input, filter, and output pipelines for parsing, enrichment, routing, and normalization.</p>
+          </div>
+          <div class="callout">
+            <strong>Elasticsearch</strong>
+            <p>Stores and indexes events across shards and replicas for search, aggregations, and analytics.</p>
+          </div>
+          <div class="callout">
+            <strong>Kibana</strong>
+            <p>Surfaces discover queries, visualizations, dashboards, Lens views, and alerting workflows.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>A production ELK deployment balances ingest throughput, index management, and search performance so operators can move from raw events to actionable insights without overwhelming the cluster.</p>
+        <pre class="mermaid">graph TD
+  Hosts[Servers and Apps] --&gt; Filebeat[Filebeat]
+  Filebeat --&gt; Logstash[Logstash]
+  Logstash --&gt; Elasticsearch[Elasticsearch]
+  Elasticsearch --&gt; Kibana[Kibana]
+  Elasticsearch --&gt; ILM[Index Lifecycle]
+  Kibana --&gt; Dashboards[Dashboards]
+  Kibana --&gt; Discover[Discover]
+  Kibana --&gt; Lens[Lens]</pre>
+        <ul>
+          <li>Filebeat is usually the first collector, reading container logs, files, or system journals and attaching metadata before forwarding events.</li>
+          <li>Logstash pipelines chain inputs, filters, and outputs so unstructured logs can be parsed into consistent fields.</li>
+          <li>Elasticsearch index templates and mappings decide how fields are stored, searched, and aggregated across shards.</li>
+          <li>Kibana Discover is ideal for ad hoc investigation, while dashboards and Lens are better for repeatable operational and business views.</li>
+          <li>Index Lifecycle Management automates rollover, warm or cold movement, and retention so storage cost stays predictable.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Indices and aliases</td>
+              <td>Indices hold documents while aliases provide stable names for searches and rollovers.</td>
+              <td>Use date based or data stream strategies for time series logs.</td>
+            </tr>
+            <tr>
+              <td>Shards and replicas</td>
+              <td>Primary shards distribute data and replicas improve resilience and read scaling.</td>
+              <td>Too many shards waste memory; right size them for node count and query patterns.</td>
+            </tr>
+            <tr>
+              <td>Mappings</td>
+              <td>Control data types, analyzers, and keyword versus text behavior.</td>
+              <td>Explicit mappings prevent expensive surprises from dynamic field expansion.</td>
+            </tr>
+            <tr>
+              <td>Pipeline filters</td>
+              <td>grok, dissect, mutate, date, and geoip enrich and normalize events.</td>
+              <td>Keep filters simple and test them with representative log samples.</td>
+            </tr>
+            <tr>
+              <td>ILM</td>
+              <td>Automates rollover, retention, and tiering for indices.</td>
+              <td>Attach policies through templates instead of managing each index manually.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Filebeat configuration</h3>
+        <p>Start with lightweight collection close to the source and add processors for metadata and multiline handling only where needed.</p>
+        <pre><code>filebeat.inputs:
+  - type: filestream
+    id: app-logs
+    paths:
+      - /var/log/app/*.log
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: &quot;^\d{4}-\d{2}-\d{2}&quot;
+          negate: true
+          match: after
+processors:
+  - add_host_metadata: {}
+  - add_cloud_metadata: {}
+output.logstash:
+  hosts: [&quot;logstash:5044&quot;]</code></pre>
+        <h3>Logstash pipeline example</h3>
+        <p>Filters should normalize timestamps and fields before Elasticsearch mappings lock in the wrong data types.</p>
+        <pre><code>input {
+  beats {
+    port =&gt; 5044
+  }
+}
+filter {
+  grok {
+    match =&gt; { &quot;message&quot; =&gt; &quot;%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} %{GREEDYDATA:msg}&quot; }
+  }
+  date {
+    match =&gt; [&quot;timestamp&quot;, &quot;ISO8601&quot;]
+  }
+  mutate {
+    rename =&gt; { &quot;host.name&quot; =&gt; &quot;host_name&quot; }
+  }
+}
+output {
+  elasticsearch {
+    hosts =&gt; [&quot;http://elasticsearch:9200&quot;]
+    index =&gt; &quot;app-logs-%{+YYYY.MM.dd}&quot;
+  }
+}</code></pre>
+        <h3>Elasticsearch and ILM operations</h3>
+        <p>Basic cluster checks should be part of every operator runbook before deeper query tuning starts.</p>
+        <pre><code>curl -s http://localhost:9200/_cluster/health?pretty
+curl -s http://localhost:9200/_cat/indices?v
+curl -s http://localhost:9200/_cat/shards?v
+curl -s http://localhost:9200/app-logs-*/_mapping?pretty
+PUT _ilm/policy/logs-hot-warm-delete
+{
+  &quot;policy&quot;: {
+    &quot;phases&quot;: {
+      &quot;hot&quot;: {
+        &quot;actions&quot;: {&quot;rollover&quot;: {&quot;max_size&quot;: &quot;50gb&quot;, &quot;max_age&quot;: &quot;7d&quot;}}
+      },
+      &quot;delete&quot;: {
+        &quot;min_age&quot;: &quot;30d&quot;,
+        &quot;actions&quot;: {&quot;delete&quot;: {}}
+      }
+    }
+  }
+}</code></pre>
+        <h3>Kibana usage patterns</h3>
+        <p>Use Discover for raw search, Lens for quick visual composition, and dashboards for shared operational views.</p>
+        <pre><code>GET /app/discover
+GET /app/dashboards
+GET /app/lens
+# useful search DSL
+GET app-logs-*/_search
+{
+  &quot;size&quot;: 0,
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;filter&quot;: [
+        {&quot;range&quot;: {&quot;@timestamp&quot;: {&quot;gte&quot;: &quot;now-15m&quot;}}},
+        {&quot;term&quot;: {&quot;level.keyword&quot;: &quot;ERROR&quot;}}
+      ]
+    }
+  },
+  &quot;aggs&quot;: {
+    &quot;by_service&quot;: {&quot;terms&quot;: {&quot;field&quot;: &quot;service.keyword&quot;}}
+  }
+}</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Define index templates, mappings, and ILM policies before broad ingestion starts so field types and rollover behavior stay controlled.</li>
+          <li>Avoid high shard counts and tiny indices; tune shard sizing to node memory, retention, and expected query concurrency.</li>
+          <li>Parse important fields once in Logstash or ingest pipelines and standardize names so Kibana dashboards are portable.</li>
+          <li>Use Filebeat processors and module defaults where possible rather than overcomplicating every Logstash pipeline.</li>
+          <li>Monitor ingestion lag, rejected indexing requests, JVM heap, disk watermarks, and search latency as platform level signals.</li>
+          <li>Reserve Kibana dashboards for high value views and retire ad hoc experiments that confuse ownership or duplicate existing searches.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Yellow or red cluster health</td>
+              <td>Nodes are unavailable, replicas cannot be assigned, or disks crossed watermarks.</td>
+              <td>Inspect _cluster/health, _cat/allocation, node status, and adjust allocation or free disk before restarting services blindly.</td>
+            </tr>
+            <tr>
+              <td>Unassigned shards</td>
+              <td>Replica counts exceed available nodes, index settings conflict with tiers, or disk allocation is blocked.</td>
+              <td>Use the allocation explain API, reduce replica requirements temporarily, and review data tier filters.</td>
+            </tr>
+            <tr>
+              <td>Slow queries and dashboards</td>
+              <td>Mappings are inefficient, shard counts are high, or broad wildcard searches scan too much data.</td>
+              <td>Use filtered time ranges, keyword fields for exact matches, and profile representative slow queries.</td>
+            </tr>
+            <tr>
+              <td>Ingest pipeline backlog</td>
+              <td>Logstash workers, Elasticsearch bulk settings, or downstream indexing capacity are insufficient.</td>
+              <td>Increase pipeline workers carefully, inspect persistent queue depth, and verify Elasticsearch thread pools and heap usage.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://www.elastic.co/docs" target="_blank" rel="noreferrer">Elastic documentation</a></li>
+          <li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="noreferrer">Elasticsearch guide</a></li>
+          <li><a href="https://www.elastic.co/guide/en/logstash/current/index.html" target="_blank" rel="noreferrer">Logstash guide</a></li>
+          <li><a href="https://www.elastic.co/guide/en/kibana/current/index.html" target="_blank" rel="noreferrer">Kibana guide</a></li>
+          <li><a href="https://www.elastic.co/guide/en/beats/filebeat/current/index.html" target="_blank" rel="noreferrer">Filebeat guide</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

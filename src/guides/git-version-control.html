@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Git &amp; Version Control | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>git-version-control.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>🌿 Git &amp; Version Control</h1>
+        <p>Git is a distributed version control system built around snapshots, content addressed objects, and lightweight references. Teams rely on it not only for local history but also for branching strategy, pull request review, hooks, automation, and auditable release workflows.</p>
+        <div class="section-note"><strong>Why it matters:</strong> Reliable Git usage blends internals knowledge with disciplined collaboration practices so history stays both useful and recoverable.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Objects and refs</strong>
+            <p>Blobs, trees, commits, tags, refs, and HEAD define how Git stores content and points to history.</p>
+          </div>
+          <div class="callout">
+            <strong>Branching models</strong>
+            <p>GitFlow, GitHub Flow, and trunk based development each optimize for different release rhythms and team sizes.</p>
+          </div>
+          <div class="callout">
+            <strong>Pull request workflow</strong>
+            <p>PRs combine branch isolation, code review, status checks, and protected branch policies for safe collaboration.</p>
+          </div>
+          <div class="callout">
+            <strong>Hooks and automation</strong>
+            <p>Local hooks and GitHub Actions can enforce linting, testing, formatting, and release steps around every change.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>Git stores snapshots as objects, moves lightweight refs like branches and tags across those objects, and synchronizes history with remotes through fetch, push, pull, and pull request workflows.</p>
+        <pre class="mermaid">graph TD
+  Worktree[Working Tree] --&gt; Index[Index]
+  Index --&gt; Commit[Commit]
+  Commit --&gt; Tree[Tree Object]
+  Tree --&gt; Blob[Blob Objects]
+  Commit --&gt; Ref[Branch Refs]
+  Ref --&gt; HEAD[HEAD]
+  Commit --&gt; Remote[Remote Repository]
+  Remote --&gt; PR[Pull Request]
+  PR --&gt; Actions[GitHub Actions]</pre>
+        <ul>
+          <li>The working tree contains current files, the index tracks staged content, and commits persist snapshots plus parent relationships.</li>
+          <li>Branches are movable refs, tags mark important history points, and HEAD identifies the currently checked out ref or commit.</li>
+          <li>GitFlow uses long lived release branches, GitHub Flow favors short lived feature branches into main, and trunk based development minimizes branch lifetime even further.</li>
+          <li>Pull requests add review, discussion, and status checks before merges land on protected branches.</li>
+          <li>Hooks such as pre commit and pre push help catch problems locally, while GitHub Actions provides CI automation in the remote platform.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rebase</td>
+              <td>Replays commits on a new base to keep history linear.</td>
+              <td>Use carefully on local or unshared history and communicate before rewriting shared branches.</td>
+            </tr>
+            <tr>
+              <td>Cherry pick</td>
+              <td>Applies a specific commit onto another branch.</td>
+              <td>Useful for hotfix backports and selective promotion.</td>
+            </tr>
+            <tr>
+              <td>Stash</td>
+              <td>Temporarily shelves working tree and index changes.</td>
+              <td>Helpful for quick context switches, but avoid treating it as long term storage.</td>
+            </tr>
+            <tr>
+              <td>Hooks</td>
+              <td>Scripts that run on local repository events such as commit or push.</td>
+              <td>Keep hooks fast and documented so developers trust them.</td>
+            </tr>
+            <tr>
+              <td>Ignore rules</td>
+              <td>.gitignore keeps generated, secret, or local environment files out of version control.</td>
+              <td>Review patterns so important assets are not excluded accidentally.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Essential branching and history commands</h3>
+        <p>These commands cover the most common daily workflows for cloning, reviewing state, and moving work between branches.</p>
+        <pre><code>git clone git@github.com:example/platform.git
+git status
+git switch -c feature/resource-guides
+git branch -vv
+git fetch origin
+git pull --rebase origin main
+git merge main
+git rebase origin/main
+git log --oneline --graph --decorate -20
+git show HEAD~1
+git diff --stat origin/main...HEAD</code></pre>
+        <h3>Selective history operations</h3>
+        <p>Cherry picks, stashes, and conflict tools help when urgent changes or parallel workstreams overlap.</p>
+        <pre><code>git cherry-pick a1b2c3d
+git stash push -m &quot;wip dashboard tweaks&quot;
+git stash list
+git stash pop
+git restore --staged src/resources.html
+git restore src/resources.html
+git reflog
+git mergetool</code></pre>
+        <h3>Hooks and ignore patterns</h3>
+        <p>Local automation should be easy to understand and should fail clearly when standards are not met.</p>
+        <pre><code># .git/hooks/pre-commit
+#!/bin/sh
+npm run lint &amp;&amp; npm test
+# .git/hooks/pre-push
+#!/bin/sh
+git diff --check origin/main...HEAD
+# .gitignore
+node_modules/
+.env
+coverage/
+dist/
+*.log
+.vscode/
+.DS_Store</code></pre>
+        <h3>Pull requests and GitHub Actions integration</h3>
+        <p>Status checks and automation make branch protection meaningful instead of ceremonial.</p>
+        <pre><code>name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+# PR flow
+git push -u origin feature/resource-guides
+# open pull request in GitHub and wait for review plus checks</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Choose one branching strategy that matches release cadence and document when feature branches, hotfixes, or release branches should be used.</li>
+          <li>Keep commits focused and descriptive so reviewing, reverting, and cherry picking changes remains safe.</li>
+          <li>Rebase or merge intentionally; do not rewrite shared history without agreement from the rest of the team.</li>
+          <li>Use protected branches, required reviews, and GitHub Actions status checks to prevent direct unvalidated changes on important branches.</li>
+          <li>Maintain clear .gitignore patterns and never rely on ignore rules as the only safeguard for secrets.</li>
+          <li>Teach conflict resolution, reflog recovery, and hook behavior so developers can recover confidently from mistakes.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Merge conflicts</td>
+              <td>Two branches changed overlapping lines or file structures in incompatible ways.</td>
+              <td>Review both sides carefully, resolve with intent, run tests, and commit the merge or continue the rebase deliberately.</td>
+            </tr>
+            <tr>
+              <td>Detached HEAD confusion</td>
+              <td>A commit hash or tag was checked out directly instead of a branch.</td>
+              <td>Create a new branch from the current commit if work should be preserved, then switch back to the intended branch.</td>
+            </tr>
+            <tr>
+              <td>Rejected pushes</td>
+              <td>The remote has new commits, branch protection blocks the push, or history was rewritten locally.</td>
+              <td>Fetch updates, rebase or merge as required, rerun checks, and verify whether force push is allowed before using it.</td>
+            </tr>
+            <tr>
+              <td>Accidentally lost changes</td>
+              <td>Files were restored, reset, or rebased unexpectedly.</td>
+              <td>Check git reflog, inspect stash entries, and recover commits or blobs before running additional cleanup commands.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://git-scm.com/doc" target="_blank" rel="noreferrer">Git documentation</a></li>
+          <li><a href="https://git-scm.com/book/en/v2" target="_blank" rel="noreferrer">Git book</a></li>
+          <li><a href="https://git-scm.com/docs/githooks" target="_blank" rel="noreferrer">Git hooks</a></li>
+          <li><a href="https://git-scm.com/docs/gitignore" target="_blank" rel="noreferrer">gitignore patterns</a></li>
+          <li><a href="https://docs.github.com/actions" target="_blank" rel="noreferrer">GitHub Actions documentation</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

@@ -20,7 +20,7 @@ const terminalScript = [
   '$ platform capabilities --top',
   'cloud architecture | ci/cd automation | kubernetes | sre',
   '$ guides status',
-  '6 document viewers available behind authenticated access',
+  '14 document viewers available behind authenticated access',
   '$ echo "Operate beautifully."'
 ].join('\n');
 

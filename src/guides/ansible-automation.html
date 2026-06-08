@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ansible Automation | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>ansible-automation.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>🛠️ Ansible Automation</h1>
+        <p>Ansible automates provisioning, configuration management, deployments, and operational workflows with agentless SSH or WinRM connectivity. It scales from a single playbook run to curated role catalogs and controller based operations through AWX or Ansible Automation Platform.</p>
+        <div class="section-note"><strong>Why it matters:</strong> Good Ansible content is idempotent, inventory aware, and organized so operators can understand why a change happened from the playbook structure alone.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Control node</strong>
+            <p>Runs ansible and ansible-playbook, stores inventories, roles, collections, and vault keys, and connects to managed hosts.</p>
+          </div>
+          <div class="callout">
+            <strong>Managed nodes</strong>
+            <p>Linux or network targets execute modules remotely and do not need a persistent agent installed.</p>
+          </div>
+          <div class="callout">
+            <strong>Inventory</strong>
+            <p>Defines hosts, groups, connection variables, and metadata through static files or dynamic inventory plugins.</p>
+          </div>
+          <div class="callout">
+            <strong>Modules and roles</strong>
+            <p>Modules do the work while roles package repeatable defaults, tasks, handlers, templates, and vars.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>Ansible separates intent from execution: inventories define where, playbooks define what, and modules or roles implement how that desired state is enforced.</p>
+        <pre class="mermaid">graph TD
+  Operator[Platform Engineer] --&gt; Control[Control Node]
+  Control --&gt; Inventory[Inventory]
+  Control --&gt; Roles[Roles and Collections]
+  Control --&gt; Vault[Vault Secrets]
+  Inventory --&gt; Web[Web Group]
+  Inventory --&gt; DB[DB Group]
+  Roles --&gt; Web
+  Roles --&gt; DB
+  Control --&gt; AWX[AWX Tower]
+  AWX --&gt; Jobs[Scheduled Jobs]
+  Control --&gt; Managed[Managed Nodes]</pre>
+        <ul>
+          <li>Playbooks are composed of plays, tasks, handlers, variables, templates, and roles that converge systems into a known state.</li>
+          <li>Static inventory is simple for small estates, while dynamic inventory connects to cloud APIs, CMDB platforms, or virtualization layers.</li>
+          <li>Common modules include apt or yum for packages, copy and template for files, service for daemons, user for accounts, and docker_container for container workloads.</li>
+          <li>Jinja2 templating turns inventory variables into rendered configuration files, which makes host specific settings explicit and reviewable.</li>
+          <li>AWX or Tower adds RBAC, scheduling, credentials management, job templates, and a UI around the same Ansible content used from the CLI.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Idempotency</td>
+              <td>Running the same playbook repeatedly should leave systems in the same desired state.</td>
+              <td>Prefer state driven modules over shell commands whenever possible.</td>
+            </tr>
+            <tr>
+              <td>Handlers</td>
+              <td>Run only when notified by changed tasks and are ideal for restarts or reloads.</td>
+              <td>Use them to avoid unnecessary service interruptions.</td>
+            </tr>
+            <tr>
+              <td>Vault</td>
+              <td>Encrypts secrets such as passwords, tokens, and certificates in source control.</td>
+              <td>Keep vault IDs and decryption keys outside the repository.</td>
+            </tr>
+            <tr>
+              <td>Dynamic inventory</td>
+              <td>Builds host lists and variables from cloud or infrastructure APIs.</td>
+              <td>Cache results when inventory resolution becomes slow.</td>
+            </tr>
+            <tr>
+              <td>Error handling</td>
+              <td>Controls how failures are tolerated, rescued, or redefined.</td>
+              <td>block, rescue, always, failed_when, and ignore_errors each fit different situations.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Inventory layout and groups</h3>
+        <p>Keep host_vars and group_vars close to the inventory so host level differences stay obvious during reviews.</p>
+        <pre><code>[web]
+web-01 ansible_host=10.0.1.10
+web-02 ansible_host=10.0.1.11
+[db]
+db-01 ansible_host=10.0.2.10
+[prod:children]
+web
+db
+# group_vars/prod.yml
+ntp_servers:
+  - time1.example.com
+  - time2.example.com
+# host_vars/web-01.yml
+app_instance: blue</code></pre>
+        <h3>Playbook structure with handlers and roles</h3>
+        <p>A clean playbook expresses desired state through tasks and delegates repeated logic into roles.</p>
+        <pre><code>- name: Configure web tier
+  hosts: web
+  become: true
+  roles:
+    - common
+    - nginx
+  tasks:
+    - name: Install packages
+      apt:
+        name: [nginx, curl]
+        state: present
+        update_cache: true
+    - name: Render nginx config
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify: restart nginx
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted</code></pre>
+        <h3>Vault, templating, and common modules</h3>
+        <p>Use Vault for secrets and template for configuration so changes remain auditable and environment aware.</p>
+        <pre><code>ansible-vault create group_vars/prod/vault.yml
+ansible-vault edit group_vars/prod/vault.yml
+ansible-galaxy install geerlingguy.docker
+- name: Create app user
+  user:
+    name: deploy
+    shell: /bin/bash
+- name: Manage application file
+  file:
+    path: /srv/app
+    state: directory
+    owner: deploy
+    mode: &quot;0755&quot;
+server_name {{ inventory_hostname }};
+upstream backend {
+  server {{ hostvars[groups[&#x27;web&#x27;][0]].ansible_host }}:8080;
+}</code></pre>
+        <h3>Blocks, async execution, and tuning</h3>
+        <p>Error handling and performance options are essential when many hosts or long running tasks are involved.</p>
+        <pre><code>- name: Run risky change with rollback logic
+  block:
+    - name: Deploy package
+      yum:
+        name: app-suite
+        state: latest
+    - name: Run migration
+      command: /usr/local/bin/migrate
+      register: migration
+      failed_when: migration.rc != 0
+  rescue:
+    - name: Restore previous package
+      yum:
+        name: app-suite-1.9.4
+        state: present
+  always:
+    - name: Collect logs
+      shell: journalctl -u app --since &quot;10 minutes ago&quot;
+# ansible.cfg
+[defaults]
+forks = 25
+pipelining = True
+# async example
+- name: Start a long running job
+  shell: /usr/local/bin/reindex
+  async: 1800
+  poll: 15</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Prefer roles and collections for shared automation so naming, defaults, handlers, and templates stay organized by domain.</li>
+          <li>Use host groups and variable precedence carefully; avoid duplicating the same variable in many places without a clear override strategy.</li>
+          <li>Choose modules before command or shell, because modules are usually idempotent, diff aware, and easier to lint or review.</li>
+          <li>Encrypt secrets with Ansible Vault and separate vault passwords from the repository through controller credentials or secure local storage.</li>
+          <li>Tune forks, SSH pipelining, fact gathering, and async execution for scale, and evaluate Mitogen only if your environment supports it safely.</li>
+          <li>Run playbooks in check mode when possible and use AWX or Tower for schedules, approvals, credentials, and audit history.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hosts unreachable</td>
+              <td>SSH keys, sudo settings, hostnames, or Python availability on the remote system are incorrect.</td>
+              <td>Use ansible all -m ping, verify ansible_user and privilege escalation, and bootstrap Python if the base image is minimal.</td>
+            </tr>
+            <tr>
+              <td>Tasks always report changed</td>
+              <td>A shell or command task is not idempotent or the destination file differs every run.</td>
+              <td>Replace shell with a stateful module, or add creates, removes, changed_when, or checksum aware templates.</td>
+            </tr>
+            <tr>
+              <td>Secret decryption failures</td>
+              <td>The wrong vault ID or password source is being used for the encrypted files.</td>
+              <td>Confirm vault IDs, review controller credential bindings, and test ansible-vault view on the target file.</td>
+            </tr>
+            <tr>
+              <td>Slow large inventory runs</td>
+              <td>Fact gathering, serial package updates, or dynamic inventory lookups are taking too long.</td>
+              <td>Disable unnecessary facts, increase forks, enable pipelining, cache inventory, and profile the slowest tasks.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://docs.ansible.com/" target="_blank" rel="noreferrer">Ansible documentation</a></li>
+          <li><a href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_intro.html" target="_blank" rel="noreferrer">Ansible playbooks</a></li>
+          <li><a href="https://docs.ansible.com/ansible/latest/vault_guide/index.html" target="_blank" rel="noreferrer">Ansible Vault</a></li>
+          <li><a href="https://galaxy.ansible.com/" target="_blank" rel="noreferrer">Ansible Galaxy</a></li>
+          <li><a href="https://ansible.readthedocs.io/projects/awx/en/latest/" target="_blank" rel="noreferrer">AWX project</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NGINX &amp; HAProxy Load Balancing | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>nginx-haproxy.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>⚖️ NGINX &amp; HAProxy Load Balancing</h1>
+        <p>NGINX and HAProxy are proven entry point technologies for reverse proxying, load balancing, TLS termination, and edge traffic policy. They are often used together or selected based on whether the environment prioritizes flexible web serving, advanced HTTP features, or extremely efficient L4 and L7 balancing.</p>
+        <div class="section-note"><strong>Why it matters:</strong> The right choice depends on traffic type, observability needs, and how much application logic is allowed at the edge.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>NGINX</strong>
+            <p>Combines reverse proxy, static content serving, caching, TLS termination, and application aware routing in one process.</p>
+          </div>
+          <div class="callout">
+            <strong>HAProxy</strong>
+            <p>Excels at high performance TCP and HTTP load balancing with strong health checks, ACLs, and connection management.</p>
+          </div>
+          <div class="callout">
+            <strong>TLS and rate limits</strong>
+            <p>Both platforms can enforce certificates, redirects, request limits, and backend health policies at the edge.</p>
+          </div>
+          <div class="callout">
+            <strong>Monitoring</strong>
+            <p>stub_status and stats pages give operators direct visibility into active sessions, queueing, and backend health.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>Edge traffic commonly lands on a public load balancer, flows through NGINX or HAProxy for policy enforcement and distribution, and then reaches application pools, APIs, or TCP services.</p>
+        <pre class="mermaid">graph TD
+  Clients[Clients] --&gt; Edge[Public Endpoint]
+  Edge --&gt; NGINX[NGINX]
+  Edge --&gt; HAProxy[HAProxy]
+  NGINX --&gt; WebPool[Web Servers]
+  NGINX --&gt; API[API Cluster]
+  HAProxy --&gt; WebPool
+  HAProxy --&gt; TCPPool[TCP Services]
+  NGINX --&gt; Metrics[stub_status]
+  HAProxy --&gt; Stats[Stats Page]
+  Edge --&gt; Certbot[Certbot and Lets Encrypt]</pre>
+        <ul>
+          <li>NGINX is often chosen when teams want URL rewrites, caching, static assets, and reverse proxying in the same service.</li>
+          <li>HAProxy is ideal when balancing efficiency, advanced health checks, and traffic control for both HTTP and raw TCP streams is the priority.</li>
+          <li>Lets Encrypt and Certbot can automate certificate issuance and renewal for either stack, though reload workflows should be tested carefully.</li>
+          <li>Rate limiting, connection limits, and ACLs protect backends from abuse and help preserve fair usage during unexpected spikes.</li>
+          <li>Operational visibility should include backend state, request latency, TLS failures, and queue growth at the edge.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reverse proxy</td>
+              <td>Terminates client connections and forwards requests to internal backends.</td>
+              <td>Useful for hiding topology, applying policy, and offloading TLS.</td>
+            </tr>
+            <tr>
+              <td>Health checks</td>
+              <td>Continuously verify backend availability before traffic is sent.</td>
+              <td>Tune intervals and thresholds to avoid flapping.</td>
+            </tr>
+            <tr>
+              <td>ACLs</td>
+              <td>HAProxy ACLs and NGINX conditionals steer traffic based on hosts, paths, headers, or rates.</td>
+              <td>Keep edge logic understandable and version controlled.</td>
+            </tr>
+            <tr>
+              <td>SSL termination</td>
+              <td>Decrypts TLS at the edge so certificates and ciphers can be managed centrally.</td>
+              <td>Re encrypt to backends when compliance requires end to end TLS.</td>
+            </tr>
+            <tr>
+              <td>Connection control</td>
+              <td>Rate and connection limits prevent overload and noisy neighbor traffic patterns.</td>
+              <td>Combine with monitoring so limits are visible and tunable.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>NGINX reverse proxy and rate limits</h3>
+        <p>Use upstream pools, health aware timeouts, and explicit limit zones to keep web traffic predictable.</p>
+        <pre><code>http {
+  upstream app_backend {
+    least_conn;
+    server 10.0.10.11:8080 max_fails=3 fail_timeout=30s;
+    server 10.0.10.12:8080 max_fails=3 fail_timeout=30s;
+  }
+  limit_req_zone $binary_remote_addr zone=req_limit:10m rate=20r/s;
+  limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
+  server {
+    listen 443 ssl http2;
+    server_name app.example.com;
+    ssl_certificate /etc/letsencrypt/live/app/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app/privkey.pem;
+    location / {
+      proxy_pass http://app_backend;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      limit_req zone=req_limit burst=40 nodelay;
+      limit_conn conn_limit 50;
+    }
+    location /nginx_status {
+      stub_status;
+      allow 127.0.0.1;
+      deny all;
+    }
+  }
+}</code></pre>
+        <h3>HAProxy load balancing and ACLs</h3>
+        <p>HAProxy can enforce rich traffic policy while staying extremely efficient for HTTP and TCP workloads.</p>
+        <pre><code>global
+  log stdout format raw local0
+defaults
+  mode http
+  timeout connect 5s
+  timeout client  30s
+  timeout server  30s
+frontend https_in
+  bind *:443 ssl crt /etc/haproxy/certs/app.pem
+  acl is_api path_beg /api
+  http-request deny if { src_conn_rate gt 100 }
+  use_backend api_back if is_api
+  default_backend web_back
+backend web_back
+  balance roundrobin
+  option httpchk GET /health
+  server web1 10.0.20.11:80 check
+  server web2 10.0.20.12:80 check
+backend api_back
+  balance leastconn
+  option httpchk GET /ready
+  server api1 10.0.30.11:8080 check
+  server api2 10.0.30.12:8080 check
+listen stats
+  bind *:8404
+  stats enable
+  stats uri /stats
+  stats refresh 10s</code></pre>
+        <h3>Lets Encrypt and validation steps</h3>
+        <p>Automated certificate renewal should be paired with reload checks and expiry monitoring.</p>
+        <pre><code>sudo certbot certonly --nginx -d app.example.com
+sudo certbot renew --dry-run
+sudo nginx -t
+sudo systemctl reload nginx
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+sudo systemctl reload haproxy</code></pre>
+        <h3>Comparison snapshot</h3>
+        <p>Use a concise matrix when explaining why one edge proxy is chosen over another.</p>
+        <pre><code>Feature                 | NGINX                     | HAProxy
+HTTP reverse proxy       | Excellent                 | Excellent
+Static file serving      | Native strength           | Not primary focus
+TCP load balancing       | Good                      | Excellent
+Advanced ACLs            | Good                      | Excellent
+Operational simplicity   | Familiar web syntax       | Focused LB syntax
+Stats visibility         | stub_status and logs      | Rich native stats page</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Keep edge configuration in version control and validate syntax before every reload or deployment.</li>
+          <li>Terminate TLS with modern ciphers, automate certificate renewal, and monitor expiry long before production deadlines.</li>
+          <li>Use health checks that reflect real readiness instead of simple TCP success for critical HTTP services.</li>
+          <li>Apply rate limits and connection limits cautiously, then monitor rejected traffic so thresholds can be tuned from evidence.</li>
+          <li>Expose stub_status or the HAProxy stats page only on trusted networks and protect them with authentication where possible.</li>
+          <li>Document when NGINX is used for application aware proxying and when HAProxy is used for high scale L4 or L7 balancing so platform ownership is clear.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>502 or 503 responses</td>
+              <td>Backends are unhealthy, timeouts are too low, or headers and upstream ports are mismatched.</td>
+              <td>Test backend health endpoints directly, inspect upstream logs, and confirm proxy headers expected by the application.</td>
+            </tr>
+            <tr>
+              <td>TLS handshake failures</td>
+              <td>Certificate chains, private keys, cipher policies, or SNI hostnames are incorrect.</td>
+              <td>Run openssl s_client, verify full chain files, and check recent certificate renewals or reload errors.</td>
+            </tr>
+            <tr>
+              <td>Uneven backend traffic</td>
+              <td>Session persistence, balancing algorithms, or slow backends are skewing distribution.</td>
+              <td>Review stickiness settings, compare response times, and inspect health check state transitions.</td>
+            </tr>
+            <tr>
+              <td>Rate limiting blocks legitimate users</td>
+              <td>The configured burst or per IP thresholds do not reflect real traffic patterns.</td>
+              <td>Tune limits using traffic baselines, consider trusted proxy headers, and add exemptions for internal or health check traffic.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://nginx.org/en/docs/" target="_blank" rel="noreferrer">NGINX documentation</a></li>
+          <li><a href="https://docs.nginx.com/nginx/admin-guide/" target="_blank" rel="noreferrer">NGINX admin guide</a></li>
+          <li><a href="https://www.haproxy.org/#docs" target="_blank" rel="noreferrer">HAProxy documentation</a></li>
+          <li><a href="https://www.haproxy.com/documentation/haproxy-configuration-manual/" target="_blank" rel="noreferrer">HAProxy configuration manual</a></li>
+          <li><a href="https://certbot.eff.org/docs/" target="_blank" rel="noreferrer">Certbot documentation</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

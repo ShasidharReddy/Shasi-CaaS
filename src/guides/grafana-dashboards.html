@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grafana Visualization &amp; Dashboards | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>grafana-dashboards.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>📊 Grafana Visualization &amp; Dashboards</h1>
+        <p>Grafana turns metrics, logs, and traces into operational views that engineers can use during day to day analysis and high pressure incidents. Strong dashboards combine reliable data sources, consistent panel semantics, templating, and alerting so teams can navigate from symptoms to evidence quickly.</p>
+        <div class="section-note"><strong>Why it matters:</strong> A dashboard is successful when it answers common questions in seconds, not when it displays every available metric.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Data sources</strong>
+            <p>Grafana connects to Prometheus, Loki, Elasticsearch, cloud monitoring APIs, SQL backends, and many other systems.</p>
+          </div>
+          <div class="callout">
+            <strong>Dashboards</strong>
+            <p>Dashboards organize panels into service, platform, and business views that can be shared or provisioned from code.</p>
+          </div>
+          <div class="callout">
+            <strong>Panels</strong>
+            <p>Time series, stat, gauge, table, and log panels each fit a different analytical task and should be chosen intentionally.</p>
+          </div>
+          <div class="callout">
+            <strong>Unified alerting</strong>
+            <p>Grafana Alerting evaluates rules, manages notification policies, and surfaces state changes alongside dashboards.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>Grafana typically sits above multiple telemetry systems so engineers can correlate metrics from Prometheus, logs from Loki or Elasticsearch, and annotations from deployments in one interface.</p>
+        <pre class="mermaid">graph TD
+  Users[Engineers] --&gt; Grafana[Grafana]
+  Grafana --&gt; Dashboards[Dashboards]
+  Grafana --&gt; Alerts[Unified Alerting]
+  Dashboards --&gt; Panels[Panels]
+  Panels --&gt; Prometheus[Prometheus]
+  Panels --&gt; Loki[Loki]
+  Panels --&gt; Elasticsearch[Elasticsearch]
+  Alerts --&gt; ContactPoints[Contact Points]
+  Grafana --&gt; Provisioning[Provisioning Files]
+  Provisioning --&gt; DataSources[Data Sources]
+  Provisioning --&gt; DashboardJSON[Dashboard JSON]</pre>
+        <ul>
+          <li>Provision data sources with YAML so environments stay reproducible across development, staging, and production.</li>
+          <li>Store dashboards as JSON in version control, but use folders and naming conventions that map to team ownership and lifecycle state.</li>
+          <li>Choose time series for trends, stat panels for single status values, gauge panels for saturation, tables for top offenders, and logs panels for rapid context switching.</li>
+          <li>Template variables should narrow scope by cluster, namespace, or service and must always have safe defaults for on call use.</li>
+          <li>Unified alerting can centralize conditions and routing, but alert rules should still link back to the dashboard panels they depend on.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Provisioning</td>
+              <td>Loads data sources, dashboards, folders, and alerts from files at startup.</td>
+              <td>Use Git backed configuration for repeatable delivery.</td>
+            </tr>
+            <tr>
+              <td>Variables</td>
+              <td>Allow filtering dashboards by environment, cluster, namespace, or service.</td>
+              <td>Limit query fan out with regex or scoped label filters.</td>
+            </tr>
+            <tr>
+              <td>Golden signals</td>
+              <td>Latency, traffic, errors, and saturation create a high value dashboard baseline.</td>
+              <td>Start here before adding custom business panels.</td>
+            </tr>
+            <tr>
+              <td>USE and RED</td>
+              <td>Utilization, saturation, errors and resource metrics complement request rate, errors, and duration.</td>
+              <td>Pair infrastructure dashboards with service dashboards.</td>
+            </tr>
+            <tr>
+              <td>Alert annotations</td>
+              <td>Enrich rules with summaries, descriptions, links, and runbooks.</td>
+              <td>Good annotations reduce triage time during incidents.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Data source provisioning</h3>
+        <p>Provisioning avoids click ops drift and makes it easy to replicate the same observability stack across environments.</p>
+        <pre><code>apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+  - name: Elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    jsonData:
+      index: logs-*
+      timeField: &quot;@timestamp&quot;</code></pre>
+        <h3>Dashboard provisioning and folders</h3>
+        <p>Keep dashboard JSON in source control and load it through providers so changes are reviewable and easy to promote.</p>
+        <pre><code>apiVersion: 1
+providers:
+  - name: platform-dashboards
+    orgId: 1
+    folder: Platform
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/platform
+# dashboard snippet
+{
+  &quot;title&quot;: &quot;API Golden Signals&quot;,
+  &quot;tags&quot;: [&quot;platform&quot;, &quot;prod&quot;],
+  &quot;timezone&quot;: &quot;browser&quot;,
+  &quot;panels&quot;: []
+}</code></pre>
+        <h3>Variables and templating</h3>
+        <p>Use variables to scope dashboards without duplicating nearly identical JSON for every cluster or service.</p>
+        <pre><code>{
+  &quot;templating&quot;: {
+    &quot;list&quot;: [
+      {
+        &quot;name&quot;: &quot;cluster&quot;,
+        &quot;type&quot;: &quot;query&quot;,
+        &quot;datasource&quot;: &quot;Prometheus&quot;,
+        &quot;query&quot;: &quot;label_values(up, cluster)&quot;,
+        &quot;includeAll&quot;: true,
+        &quot;multi&quot;: true
+      },
+      {
+        &quot;name&quot;: &quot;service&quot;,
+        &quot;type&quot;: &quot;query&quot;,
+        &quot;query&quot;: &quot;label_values(http_requests_total{cluster=~\&quot;$cluster\&quot;}, job)&quot;
+      }
+    ]
+  }
+}</code></pre>
+        <h3>Grafana Alerting rule example</h3>
+        <p>Grafana Alerting can evaluate Prometheus expressions and route alerts through contact points and policies.</p>
+        <pre><code>apiVersion: 1
+groups:
+  - orgId: 1
+    name: service-latency
+    folder: Platform
+    interval: 1m
+    rules:
+      - uid: api-p95-latency
+        title: API p95 latency high
+        condition: C
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=&quot;api&quot;}[5m])))
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              expression: A &gt; 0.8
+        annotations:
+          summary: API latency exceeded target
+        labels:
+          severity: warning</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Build dashboard home pages around golden signals, then link into deeper drill down boards for services, dependencies, and infrastructure.</li>
+          <li>Use consistent units, thresholds, and panel titles so similar dashboards feel predictable to every operator.</li>
+          <li>Keep dashboard variables fast by querying stable label sets instead of expensive full text searches or large cardinality metrics.</li>
+          <li>Annotate deployments and incidents so changes in latency, error rate, or saturation can be correlated with releases.</li>
+          <li>Separate alerting dashboards from exploratory dashboards so responders are not distracted by low value panels during incidents.</li>
+          <li>Review panels with service owners and retire stale dashboards that no longer map to active workloads or meaningful questions.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Empty panels or no data</td>
+              <td>The data source is misconfigured, credentials expired, or the query uses labels that are not present.</td>
+              <td>Test the query directly in Explore, verify data source health, and compare labels against the source system.</td>
+            </tr>
+            <tr>
+              <td>Slow dashboard loads</td>
+              <td>Too many panels query long time ranges or use high cardinality filters at the same time.</td>
+              <td>Reduce default time windows, add recording rules, and split broad dashboards into focused drill down views.</td>
+            </tr>
+            <tr>
+              <td>Alert rule noise</td>
+              <td>Thresholds are static, lookback windows are too short, or labels do not map to owners.</td>
+              <td>Tune severity levels, add pending durations, and enrich labels so notification policies can route correctly.</td>
+            </tr>
+            <tr>
+              <td>Template variables return huge lists</td>
+              <td>The backing query is unbounded or the source metric includes noisy labels.</td>
+              <td>Constrain variables by environment and team, or replace the metric with a curated label index.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://grafana.com/docs/grafana/latest/" target="_blank" rel="noreferrer">Grafana documentation</a></li>
+          <li><a href="https://grafana.com/docs/grafana/latest/administration/provisioning/" target="_blank" rel="noreferrer">Grafana dashboard provisioning</a></li>
+          <li><a href="https://grafana.com/docs/grafana/latest/alerting/" target="_blank" rel="noreferrer">Grafana Alerting</a></li>
+          <li><a href="https://grafana.com/docs/grafana/latest/panels-visualizations/" target="_blank" rel="noreferrer">Grafana panel visualizations</a></li>
+          <li><a href="https://grafana.com/docs/grafana/latest/datasources/prometheus/" target="_blank" rel="noreferrer">Prometheus data source</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>

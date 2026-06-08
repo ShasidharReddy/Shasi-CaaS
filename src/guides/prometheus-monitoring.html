@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prometheus Monitoring | Shasi Technologies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+<style>.guide-page pre{margin-top:1rem;padding:1rem 1.1rem;border-radius:20px;background:#111827;color:#f9fafb;overflow-x:auto;border:1px solid rgba(17,24,39,.1)}.guide-page pre code{white-space:pre-wrap;word-break:break-word}.guide-page pre.mermaid{background:#f8fafc;color:#0f172a;border:1px solid rgba(15,23,42,.12)}.guide-page .section-note{padding:1rem 1.1rem;border-radius:20px;background:#eff6ff;border:1px solid rgba(59,130,246,.16);color:#1e3a8a}.guide-page .reference-links a{color:#2563eb;text-decoration:underline}.guide-page h3{margin:1.35rem 0 .65rem;font-size:1.05rem}</style>
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>prometheus-monitoring.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>📈 Prometheus Monitoring</h1>
+        <p>Prometheus is the de facto metric collection and alerting platform for cloud-native systems. It combines pull-based scraping, dimensional time series, flexible PromQL queries, and ecosystem integrations to help operators observe infrastructure, applications, and service reliability in one workflow.</p>
+        <div class="section-note"><strong>Why it matters:</strong> A healthy Prometheus deployment depends on disciplined metric design, predictable scrape targets, and recording rules that turn raw telemetry into fast dashboard and alert queries.</div>
+        <h2>Overview</h2>
+        <div class="checklist-grid">
+          <div class="callout">
+            <strong>Prometheus Server</strong>
+            <p>Scrapes targets, stores local TSDB blocks, evaluates rules, and exposes a query API for dashboards and automation.</p>
+          </div>
+          <div class="callout">
+            <strong>Exporters</strong>
+            <p>Translate host, network, database, and application internals into Prometheus metrics that can be scraped on a schedule.</p>
+          </div>
+          <div class="callout">
+            <strong>AlertManager</strong>
+            <p>Deduplicates, groups, silences, and routes alerts to email, chat, PagerDuty, or incident management systems.</p>
+          </div>
+          <div class="callout">
+            <strong>Pushgateway</strong>
+            <p>Handles short lived jobs that cannot be scraped directly, but should be used carefully so metrics do not become stale.</p>
+          </div>
+        </div>
+        <h2>Architecture and Components</h2>
+        <p>A production deployment usually places Prometheus near the workloads it scrapes, adds AlertManager for notifications, and forwards long term data through federation or remote write pipelines.</p>
+        <pre class="mermaid">graph TD
+  Apps[Applications] --&gt; Exporters[Exporters]
+  Nodes[Linux Nodes] --&gt; NodeExporter[Node Exporter]
+  Endpoints[HTTP Checks] --&gt; Blackbox[Blackbox Exporter]
+  Databases[Data Stores] --&gt; DBExporters[MySQL and Redis Exporters]
+  BatchJobs[Batch Jobs] --&gt; Pushgateway[Pushgateway]
+  NodeExporter --&gt; Prometheus[Prometheus Server]
+  Exporters --&gt; Prometheus
+  Blackbox --&gt; Prometheus
+  DBExporters --&gt; Prometheus
+  Pushgateway --&gt; Prometheus
+  Prometheus --&gt; AlertManager[AlertManager]
+  Prometheus --&gt; Grafana[Grafana]
+  Prometheus --&gt; RemoteWrite[Remote Write]
+  RemoteWrite --&gt; LongTerm[Long Term Storage]
+  Prometheus --&gt; Federation[Federation Layer]</pre>
+        <ul>
+          <li>Prometheus servers usually separate infrastructure scraping from application scraping so retention and cardinality can be tuned independently.</li>
+          <li>node_exporter covers CPU, memory, filesystem, and network health, while blackbox_exporter checks endpoints, DNS, TCP, and TLS reachability.</li>
+          <li>mysqld_exporter and redis_exporter expose database specific counters such as replication lag, connections, slow queries, cache hits, and memory pressure.</li>
+          <li>AlertManager groups related pages, supports inhibition rules, and reduces alert noise when a parent service is already known to be failing.</li>
+          <li>Federation is useful for aggregating precomputed series from regional Prometheus servers, while remote write sends raw or near raw samples to external systems.</li>
+        </ul>
+        <h2>Key Concepts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Purpose</th>
+              <th>Operator note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PromQL</td>
+              <td>Queries and aggregates time series with label filtering, arithmetic, rates, and vector matching.</td>
+              <td>Prefer rate or increase for counters and avg_over_time for recent trends.</td>
+            </tr>
+            <tr>
+              <td>Recording rules</td>
+              <td>Precompute expensive expressions into new metrics for dashboards and alerting.</td>
+              <td>Use them for SLO windows, saturation views, and common service aggregations.</td>
+            </tr>
+            <tr>
+              <td>Alert rules</td>
+              <td>Evaluate PromQL expressions on a schedule and create firing alerts when conditions persist.</td>
+              <td>Pair with for durations to avoid paging on transient spikes.</td>
+            </tr>
+            <tr>
+              <td>Federation</td>
+              <td>Pull selected series from another Prometheus server.</td>
+              <td>Federate curated metrics instead of every raw series to keep cardinality bounded.</td>
+            </tr>
+            <tr>
+              <td>Remote write</td>
+              <td>Push samples to long term backends such as Thanos, Cortex, or Mimir.</td>
+              <td>Monitor queue pressure and retry latency so data loss is visible.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Essential Commands and Configuration</h2>
+        <h3>Scrape and exporter configuration</h3>
+        <p>Keep scrape jobs grouped by ownership and use relabeling only when a simpler target label would not work.</p>
+        <pre><code>global:
+  scrape_interval: 15s
+  evaluation_interval: 30s
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: [&#x27;localhost:9090&#x27;]
+  - job_name: node
+    static_configs:
+      - targets:
+          - web-01:9100
+          - web-02:9100
+  - job_name: blackbox-http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://api.example.com/health
+          - https://shop.example.com/ready
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115</code></pre>
+        <h3>PromQL basics and recording rules</h3>
+        <p>Recording rules reduce dashboard latency and keep alerting queries simple enough to review during incidents.</p>
+        <pre><code>groups:
+  - name: platform-recording
+    interval: 30s
+    rules:
+      - record: job:http_requests:rate5m
+        expr: sum by (job) (rate(http_requests_total[5m]))
+      - record: job:http_errors:rate5m
+        expr: sum by (job) (rate(http_requests_total{status=~&quot;5..&quot;}[5m]))
+      - record: job:cpu_utilization:ratio
+        expr: 1 - avg by (job) (rate(node_cpu_seconds_total{mode=&quot;idle&quot;}[5m]))
+# Example PromQL
+rate(http_requests_total[5m])
+sum by (instance) (rate(node_network_receive_bytes_total[5m]))
+histogram_quantile(0.95, sum by (le, job) (rate(http_request_duration_seconds_bucket[5m])))
+job:http_errors:rate5m / job:http_requests:rate5m</code></pre>
+        <h3>Alerting and AlertManager routing</h3>
+        <p>Alert rules should describe symptoms, include labels for routing, and add annotations that point to dashboards and runbooks.</p>
+        <pre><code>groups:
+  - name: platform-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: (job:http_errors:rate5m / job:http_requests:rate5m) &gt; 0.05
+        for: 10m
+        labels:
+          severity: page
+          team: platform
+        annotations:
+          summary: Elevated error rate for {{ $labels.job }}
+          description: Error ratio has remained above five percent for ten minutes.
+route:
+  receiver: default
+  group_by: [alertname, cluster, team]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+receivers:
+  - name: default
+    email_configs:
+      - to: sre@example.com</code></pre>
+        <h3>Federation and remote write</h3>
+        <p>Use federation for curated aggregate metrics and remote write when a central platform must retain long term data or support global queries.</p>
+        <pre><code>scrape_configs:
+  - job_name: federate
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - &#x27;{__name__=~&quot;job:.*&quot;}&#x27;
+        - &#x27;up{job=~&quot;node|api&quot;}&#x27;
+    static_configs:
+      - targets: [&#x27;regional-prometheus:9090&#x27;]
+remote_write:
+  - url: https://mimir.example.com/api/v1/push
+    queue_config:
+      max_samples_per_send: 10000
+      capacity: 20000
+      max_shards: 10</code></pre>
+        <h2>Best Practices</h2>
+        <ul>
+          <li>Standardize labels such as service, environment, cluster, and team so dashboards and alerts can be reused across applications.</li>
+          <li>Control high cardinality by avoiding unbounded labels like user IDs, request paths with raw parameters, or randomly generated values.</li>
+          <li>Keep rule files in version control, review PromQL changes, and test expressions before promoting them into alerting.</li>
+          <li>Separate short retention local storage from long term remote storage so on-cluster Prometheus remains fast and predictable.</li>
+          <li>Monitor scrape duration, target health, TSDB compaction, WAL growth, and remote write queue pressure as first class platform signals.</li>
+          <li>Document runbooks next to each critical alert so responders know which dashboard, log query, or rollback path to use.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Symptom</th>
+              <th>Likely cause</th>
+              <th>Recommended action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>High cardinality and memory growth</td>
+              <td>A metric includes labels with near unlimited values such as full URLs or request identifiers.</td>
+              <td>Inspect top series with tooling, remove noisy labels from instrumentation, and replace dashboard queries with recording rules.</td>
+            </tr>
+            <tr>
+              <td>Scrape failures or many targets down</td>
+              <td>Network paths, DNS, TLS settings, or exporter processes are unhealthy.</td>
+              <td>Check the Targets page, curl the exporter endpoint, validate firewall rules, and confirm scrape_timeout is lower than interval.</td>
+            </tr>
+            <tr>
+              <td>Storage pressure and slow queries</td>
+              <td>Retention is too long for local disks or many wide range queries are scanning raw samples.</td>
+              <td>Reduce retention, increase storage, add recording rules, and move historical queries to a remote backend.</td>
+            </tr>
+            <tr>
+              <td>Gaps in federated or remote data</td>
+              <td>Source rules changed, remote write queues are backing up, or credentials were rotated.</td>
+              <td>Review federation match selectors, inspect queue metrics, and verify remote endpoint authentication and ingestion quotas.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Official References</h2>
+        <ul class="reference-links">
+          <li><a href="https://prometheus.io/docs/introduction/overview/" target="_blank" rel="noreferrer">Prometheus documentation</a></li>
+          <li><a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="noreferrer">Prometheus exporters and integrations</a></li>
+          <li><a href="https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/" target="_blank" rel="noreferrer">Prometheus alerting rules</a></li>
+          <li><a href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noreferrer">AlertManager configuration</a></li>
+          <li><a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noreferrer">PromQL basics</a></li>
+        </ul>
+      </div>
+    </article>
+<script src="/js/main.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+</script>
+  </body>
+</html>
