@@ -1,4 +1,4 @@
-name: Deploy Portfolio to Cloud Run
+name: Release Shasi Technologies
 
 on:
   push:
@@ -7,44 +7,64 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  packages: write
+  pages: write
   id-token: write
 
-env:
-  PROJECT_ID: your-gcp-project-id
-  SERVICE: shasi-portfolio
-  REGION: us-central1
-  IMAGE: gcr.io/your-gcp-project-id/shasi-portfolio
+concurrency:
+  group: shasi-technologies-release
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  release:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID
-          service_account: deployer@your-gcp-project-id.iam.gserviceaccount.com
+          fetch-depth: 0
 
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          project_id: ${{ env.PROJECT_ID }}
+          node-version: '20'
 
-      - name: Configure Docker auth
-        run: gcloud auth configure-docker --quiet
-
-      - name: Build container image
-        run: docker build -t "$IMAGE:${GITHUB_SHA}" -t "$IMAGE:latest" .
-
-      - name: Push container image
+      - name: Bump VERSION file
+        id: bump
+        shell: bash
         run: |
-          docker push "$IMAGE:${GITHUB_SHA}"
-          docker push "$IMAGE:latest"
+          current_version=$(cat VERSION)
+          IFS='.' read -r major minor patch <<< "$current_version"
+          next_version="$major.$minor.$((patch + 1))"
+          echo "$next_version" > VERSION
+          echo "version=$next_version" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy to Cloud Run
+      - name: Commit version bump and tag
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
         run: |
-          gcloud run deploy "$SERVICE"             --image "$IMAGE:${GITHUB_SHA}"             --region "$REGION"             --platform managed             --allow-unauthenticated
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VERSION
+          git commit -m "chore: release v${VERSION}" || echo "No VERSION changes to commit"
+          git tag "v${VERSION}" || echo "Tag already exists"
+          git push origin main --follow-tags
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            shasidhar19/shasi-technologies:${{ steps.bump.outputs.version }}
+            shasidhar19/shasi-technologies:latest

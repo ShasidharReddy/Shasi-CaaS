@@ -3,35 +3,35 @@ steps:
     args:
       - build
       - -t
-      - gcr.io/$PROJECT_ID/shasi-portfolio:$COMMIT_SHA
+      - gcr.io/$PROJECT_ID/shasi-technologies:$COMMIT_SHA
       - -t
-      - gcr.io/$PROJECT_ID/shasi-portfolio:latest
+      - gcr.io/$PROJECT_ID/shasi-technologies:latest
       - .
 
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - gcr.io/$PROJECT_ID/shasi-portfolio:$COMMIT_SHA
+      - gcr.io/$PROJECT_ID/shasi-technologies:$COMMIT_SHA
 
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - gcr.io/$PROJECT_ID/shasi-portfolio:latest
+      - gcr.io/$PROJECT_ID/shasi-technologies:latest
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
     args:
       - run
       - deploy
-      - shasi-portfolio
-      - --image=gcr.io/$PROJECT_ID/shasi-portfolio:$COMMIT_SHA
+      - shasi-technologies
+      - --image=gcr.io/$PROJECT_ID/shasi-technologies:$COMMIT_SHA
       - --region=$_REGION
       - --platform=managed
       - --allow-unauthenticated
 
 images:
-  - gcr.io/$PROJECT_ID/shasi-portfolio:$COMMIT_SHA
-  - gcr.io/$PROJECT_ID/shasi-portfolio:latest
+  - gcr.io/$PROJECT_ID/shasi-technologies:$COMMIT_SHA
+  - gcr.io/$PROJECT_ID/shasi-technologies:latest
 
 substitutions:
   _REGION: us-central1

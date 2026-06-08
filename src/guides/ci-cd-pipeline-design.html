@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CI/CD Pipeline Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>ci-cd-pipeline-design.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>CI/CD Pipeline Design</h1>
+        <p>Well-designed pipelines do more than automate builds. They encode quality, security, and operational confidence into every release path.</p>
+        <h2>Pipeline Layers</h2>
+        <ul>
+          <li><strong>Source validation:</strong> formatting, unit tests, secret scanning, dependency checks.</li>
+          <li><strong>Artifact creation:</strong> signed builds, SBOM generation, immutable versioning.</li>
+          <li><strong>Promotion:</strong> environment-specific approvals and deployment evidence.</li>
+          <li><strong>Post-release:</strong> smoke tests, observability checks, and rollback hooks.</li>
+        </ul>
+
+        <h2>Design Principles</h2>
+        <div class="checklist-grid">
+          <div class="callout"><strong>Fast feedback</strong><p>Run the cheapest confidence signals first to protect developer flow.</p></div>
+          <div class="callout"><strong>Immutable artifacts</strong><p>Build once and promote the same artifact through environments.</p></div>
+          <div class="callout"><strong>Policy gates</strong><p>Enforce approvals only where risk justifies them.</p></div>
+          <div class="callout"><strong>Rollback</strong><p>Treat rollback strategy as part of release design, not an incident improvisation.</p></div>
+        </div>
+
+        <h2>Reference Stage Map</h2>
+        <table>
+          <thead><tr><th>Stage</th><th>Key checks</th><th>Primary owner</th></tr></thead>
+          <tbody>
+            <tr><td>Build</td><td>Compile, unit tests, package integrity</td><td>Engineering</td></tr>
+            <tr><td>Security</td><td>SAST, dependency scan, container scan</td><td>Shared security/dev platform</td></tr>
+            <tr><td>Deploy</td><td>Change approval, canary or blue/green rollout</td><td>Release owner</td></tr>
+            <tr><td>Verify</td><td>Smoke tests, telemetry baseline, rollback guardrails</td><td>SRE / service team</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Operational Advice</h2>
+        <p>Keep pipeline logic modular and platform-owned while allowing product teams to inject service-specific tests. Standard interfaces prevent every application repository from inventing a different release engine.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

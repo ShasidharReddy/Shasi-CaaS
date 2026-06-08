@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoring & SRE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="guide-page" data-page="guide">
+    <article class="guide-document">
+      <header class="document-header">
+        <div class="window-chrome"><span class="dot dot-red"></span><span class="dot dot-orange"></span><span class="dot dot-green"></span><strong>monitoring-and-sre.pdf</strong></div>
+      </header>
+      <div class="document-content">
+        <p class="eyebrow">Shasi Technologies guide</p>
+        <h1>Monitoring &amp; SRE</h1>
+        <p>Observability becomes effective when telemetry, response workflows, and reliability targets reinforce one another. This guide provides a compact operating model.</p>
+        <h2>Telemetry Stack</h2>
+        <ul>
+          <li>Metrics should tell you what is changing, logs should explain why, and traces should show where latency and errors accumulate.</li>
+          <li>Adopt consistent labels for service, environment, ownership, and deployment version to make dashboards portable.</li>
+          <li>Instrument platform components and customer-facing paths with equal rigor.</li>
+        </ul>
+
+        <h2>Reliability Practices</h2>
+        <div class="checklist-grid">
+          <div class="callout"><strong>SLIs</strong><p>Measure user-relevant signals such as availability, latency, throughput, and correctness.</p></div>
+          <div class="callout"><strong>SLOs</strong><p>Set targets that reflect business value and error budget consumption.</p></div>
+          <div class="callout"><strong>Alerts</strong><p>Page for symptoms and budget burn, not every infrastructure blip.</p></div>
+          <div class="callout"><strong>Reviews</strong><p>Run blameless post-incident reviews with follow-through on systemic fixes.</p></div>
+        </div>
+
+        <h2>Incident Lifecycle</h2>
+        <table>
+          <thead><tr><th>Phase</th><th>Expected outcome</th><th>Supporting asset</th></tr></thead>
+          <tbody>
+            <tr><td>Detection</td><td>Clear, actionable signal</td><td>Alert rules with owner routing</td></tr>
+            <tr><td>Triage</td><td>Fast severity classification</td><td>Runbooks and service context</td></tr>
+            <tr><td>Mitigation</td><td>Restored service or reduced impact</td><td>Rollback, failover, feature controls</td></tr>
+            <tr><td>Learning</td><td>Lasting improvement</td><td>Postmortem action plan</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Executive Summary</h2>
+        <p>SRE maturity is not about having more dashboards. It is about aligning telemetry, on-call policy, ownership boundaries, and architecture investment so the platform becomes steadily more predictable over time.</p>
+      </div>
+    </article>
+    <script src="/js/main.js"></script>
+  </body>
+</html>
