@@ -1,0 +1,24 @@
+Shasidhar Reddy Mallu
+Cloud & DevOps Engineer
+Company: Microsoft
+Experience: 7+ years
+
+Profiles
+- GitHub: https://github.com/ShasidharReddy
+- LinkedIn: https://www.linkedin.com/in/shasidhar-reddy-18b511191/
+
+Core Skills
+- Linux, Bash, Python, Shell Scripting
+- AWS, Azure, GCP
+- Kubernetes, Docker, Helm, OpenShift
+- Terraform, Ansible, CloudFormation
+- Jenkins, GitHub Actions, GitLab CI, ArgoCD
+- Prometheus, Grafana, ELK Stack, Datadog
+- Networking, Security, TLS/SSL, Firewalls, SELinux
+
+Featured Repositories
+- Shasi-Linux
+- Azure-Cloud-Engineer
+- AWS-Cloud-Architect
+- GCP-Cloud-DevOps
+- Shasi-CaaS
